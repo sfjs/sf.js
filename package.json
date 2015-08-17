@@ -1,0 +1,45 @@
+{
+  "name": "sp.js",
+  "version": "3.0.0",
+  "description": "Spiral Scout Frontend Framework",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/spiral/sf.js.git"
+  },
+  "scripts": {
+    "test": "echo 'Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Andrey Logunov",
+    "email": "systerr@gmail.com",
+    "url": "http://spiralscout.com"
+  },
+  "contributors": [
+    {
+      "name": "Andrey Logunov",
+      "email": "systerr@gmail.com",
+      "url": "http://spiralscout.com"
+    },
+    {
+      "name": "Alex Chepura",
+      "email": "a.chepura@gmail.com",
+      "url": "http://spiralscout.com"
+    }
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^11.0.1",
+    "exorcist": "^0.4.0",
+    "gulp": "^3.8.11",
+    "gulp-jsdoc": "^0.1.4",
+    "gulp-shell": "^0.4.1",
+    "jaguarjs-jsdoc": "0.0.1",
+    "jsdoc": "^3.3.2",
+    "through2": "^0.6.5"
+  },
+  "bugs": {
+    "url": "https://github.com/spiral/sf.js/issues"
+  },
+  "homepage": "https://github.com/spiral/sf.js#readme"
+}
