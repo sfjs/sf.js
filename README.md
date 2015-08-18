@@ -14,7 +14,7 @@ Hi, you are reading documentation of the Spiral Scout Frontend Framework (SSFF o
 Many modules has Event subsystem. It's a light event module with methods: on, off, trigger
 
 ##Ajax
-Ajax based on promises. So if you using old browser please add promse polyfill
+Ajax based on promises. So if you using old browser please add promise polyfill
 
 ### XDomainRequest for IE
 
