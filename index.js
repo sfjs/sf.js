@@ -43,36 +43,4 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
 
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/FormMessages/spiral"); //add form addon
-
-
-
-//
-//spiralFrontend.Core = {
-//    instances: {
-//        Form: {
-//            self: Form,
-//            FormMessages: {
-//                spiral: require("./lib/instances/form/FormMessages/spiral.js")
-//                //bootstrap: require("./lib/instances/form/FormMessages/bootstrap.js")
-//                //materialLite: require("./FormMessages/materialLite.js")
-//            }
-//        }
-//    }
-//};
-
-//spiralFrontend.lock = require("./lib/core/lock");
-
-//spiralFrontend.instancesController.addInstanceType("form", "js-spiral-form", Form);
-
-
-
-
-
-
-
-
-
-
-
-
+require("./lib/instances/form/addons/FormMessages/spiral"); //add form addon
