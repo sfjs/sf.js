@@ -33,7 +33,10 @@ Ajax based on promises. So if you using old browser please add promise polyfill
 
 #Building
 
-#gulp
+##gulp
 
-##gulp tasks
+###gulp tasks
+
+##build own bundle with other modules included
+
 
