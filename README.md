@@ -5,7 +5,6 @@ Hi, you are reading documentation of the Spiral Scout Frontend Framework (SSFF o
 #Idea
 
 
-
 #Dom Mutations
 
 
@@ -23,15 +22,20 @@ Ajax based on promises. So if you using old browser please add promise polyfill
 #### Magical constant
 "SpiralAjax-oldIE9876gsloiHGldowu"
 
+#Usage
 
+##Components
 
-#Default components
+###Default components
 
 <div class="js-spiral-ELEMENT" data-ELEMENT-option="1"></div>
+
+## Include other components
 
 #Writing own component
 
 #Building
+
 
 ##gulp
 
