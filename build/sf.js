@@ -1,5 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
+//https://github.com/spiral/sf.js
 
 //Add console shim for old IE
 require("./lib/shim/console");
@@ -41,44 +42,10 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
     window.sf = sf;
 }
 
+require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-
-
-
-
-
-
-//
-//spiralFrontend.Core = {
-//    instances: {
-//        Form: {
-//            self: Form,
-//            FormMessages: {
-//                spiral: require("./lib/instances/form/FormMessages/spiral.js")
-//                //bootstrap: require("./lib/instances/form/FormMessages/bootstrap.js")
-//                //materialLite: require("./FormMessages/materialLite.js")
-//            }
-//        }
-//    }
-//};
-
-//spiralFrontend.lock = require("./lib/core/lock");
-
-//spiralFrontend.instancesController.addInstanceType("form", "js-spiral-form", Form);
-
-
-
-
-
-
-
-
-
-
-
-
-
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/helpers/DOMEvents":7,"./lib/helpers/LikeFormData":8,"./lib/helpers/domTools":9,"./lib/helpers/tools":10,"./lib/instances/form/Form.js":11,"./lib/shim/console":12}],2:[function(require,module,exports){
+require("./lib/instances/form/addons/FormMessages/spiral"); //add form addon
+},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/helpers/DOMEvents":7,"./lib/helpers/LikeFormData":8,"./lib/helpers/domTools":9,"./lib/helpers/tools":10,"./lib/instances/form/Form.js":11,"./lib/instances/form/addons/FormMessages/spiral":12,"./lib/shim/console":13,"./lib/vendor/formToObject":14}],2:[function(require,module,exports){
 "use strict";
 
 var tools = require("../helpers/tools");
@@ -339,11 +306,17 @@ var BaseDOMConstructor = function () {
 };
 /**
  * Init method. Call after construct instance
- * @param {Object} node dom node
+ * @param {Object} spiral
+ * @param {Object} node  DomNode of form
+ * @param {Object} [options] all options to override default
  */
-BaseDOMConstructor.prototype.init = function (node) {
+BaseDOMConstructor.prototype.init = function (spiral,node,options) {
     //TODO data-spiral-JSON
     this.options = tools.extend(this.getProcessedAttributes(node), this.getProcessedOptions(node));
+    if (options) {//if we pass options extend all options by passed options
+        this.options = tools.extend(this.options, options);
+    }
+    this.spiral = spiral;
 };
 
 
@@ -483,6 +456,14 @@ BaseDOMConstructor.prototype.getProcessedOptions = function (node) {
         }
     }
     return options;
+};
+/**
+ * Get addon for instance
+ * @param {String} addonType type of addon (message,fill,etc)
+ * @param {String} addonName name of addon
+ */
+BaseDOMConstructor.prototype.getAddon = function(addonType, addonName){
+    return this.spiral.instancesController.getInstanceAddon(this.name, addonType, addonName);
 };
 
 module.exports = BaseDOMConstructor;
@@ -729,13 +710,14 @@ module.exports = Events;
  * @constructor
  */
 var InstancesController = function (spiral) {
-    this.spiral =spiral;
+    this.spiral = spiral;
     if (!this.constructor){
         console.error("Please call InstancesController with new  - 'new InstancesController()' ");
         return;
     }
     this._storage = {
         settings: {},
+        addons: {},
         instances: {}
     };
 
@@ -744,24 +726,24 @@ var InstancesController = function (spiral) {
     //this.events = new spiral.modules.core.Events();
 };
 /**
- * Add new instance type
- * @param {String} typeName - type of instance
- * @param {String} className - class name of instance
- * TODO class name = NULL (disable dom mutation);
+ * Register new instance type
  * @param {Function} constructorFunction - constructor function of instance
+ * @param {String} className - class name of instance
  * @param {Boolean} [isSkipInitialization]  - skip component initialization, just adding, no init nodes.
  */
-InstancesController.prototype.addInstanceType = function (typeName, className, constructorFunction,isSkipInitialization) {
-    if (this._storage.settings.hasOwnProperty(className)){
-        console.error("Instance Constructor for type %s already added. Skipping",typeName);
+InstancesController.prototype.registerInstanceType = function (constructorFunction, className, isSkipInitialization) {
+    if (!constructorFunction.prototype.name){
+        console.error("Instance constructor should have name inside it");
+    }
+     if (this._storage.settings.hasOwnProperty(className)){
+        console.error("Instance Constructor for type %s already added. Skipping",constructorFunction.prototype.name);
         return;
     }
-
     this._storage.settings[className] = {//init storage fields
-        "typeName": typeName,
+        "typeName": constructorFunction.prototype.name,
         "constructor": constructorFunction
     };
-    this._storage.instances[typeName] = [];
+    this._storage.instances[constructorFunction.prototype.name] = [];
     if (!isSkipInitialization){
         var nodes = document.getElementsByClassName(className);//init add nodes with this class
         for (var i = 0, max = nodes.length; i < max; i++) {
@@ -769,6 +751,53 @@ InstancesController.prototype.addInstanceType = function (typeName, className, c
         }
     }
 
+};
+
+/**
+ * Old method to register instance type
+ * @param className
+ * @param constructorFunction
+ * @param isSkipInitialization
+ * @deprecated
+ */
+InstancesController.prototype.addInstanceType =function(className,constructorFunction, isSkipInitialization){
+    console.warn("addInstanceType is deprecated. Please use registerInstanceType instead");
+    return this.registerInstanceType(constructorFunction, isSkipInitialization);
+};
+
+/**
+ * Register addon for instance
+ * @param {Function|Object} addon
+ * @param {String} instanceName name of instance to register addon
+ * @param {String} addonType type of addon (message,fill,etc)
+ * @param {String} addonName name of addon (spiral, bootstrap,etc)
+ */
+InstancesController.prototype.registerAddon = function(addon, instanceName, addonType, addonName){
+    if (!this._storage.addons.hasOwnProperty(instanceName)){
+        this._storage.addons[instanceName] = {};
+    }
+    if (!this._storage.addons[instanceName].hasOwnProperty(addonType)){
+        this._storage.addons[instanceName][addonType] = {};
+    }
+    if (this._storage.addons[instanceName][addonType].hasOwnProperty(addonName)){
+        console.error("The %s addon type %s already registered for instance %s! Skipping registration.",addonName,addonType,instanceName);
+        return;
+    }
+    this._storage.addons[instanceName][addonType][addonName]= addon;
+
+};
+
+/**
+ * Get registered addon
+ * @param {String} instanceName name of instance to register addon
+ * @param {String} addonType type of addon (message,fill,etc)
+ * @param {String} addonName name of addon (spiral, bootstrap,etc)
+ */
+InstancesController.prototype.getInstanceAddon =function(instanceName, addonType, addonName){
+    if (!this._storage.addons.hasOwnProperty(instanceName) || !this._storage.addons[instanceName].hasOwnProperty(addonType) || !this._storage.addons[instanceName][addonType].hasOwnProperty(addonName)){
+        return false;
+    }
+    return this._storage.addons[instanceName][addonType][addonName];
 };
 
 /**
@@ -853,9 +882,13 @@ InstancesController.prototype.getClasses = function (){
  * Get constructor by name or class name
  * @returns
  */
-InstancesController.prototype.getConstructor = function (name){
+InstancesController.prototype.getInstanceConstructors = function (name){
+
    //TODO
 };
+
+
+
 
 module.exports = InstancesController;
 
@@ -1259,12 +1292,31 @@ module.exports = tools;
      * @extends BaseDOMConstructor
      */
     var Form = function (spiral, node, options) {
-        this.spiral = spiral;
-        this.init(node);//call parent
+        this._construct(spiral, node, options);
+    };
 
-        if (options) {//if we pass options extend all options by passed options
-            this.options = this.spiral.modules.tools.extend(this.options, options);
-        }
+
+    /**
+     * @lends spiral.Form.prototype
+     */
+    Form.prototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
+
+    /**
+     * Name to register
+     * @type {string}
+     */
+    Form.prototype.name = "form";
+
+    /**
+     * Function that call on new instance is created.
+     * @param {Object} spiral
+     * @param {Object} node  DomNode of form
+     * @param {Object} [options] all options to override default
+     * @private
+     */
+    Form.prototype._construct = function(spiral, node, options){
+        this.init(spiral, node, options);//call parent
+
         if (this.options.fillFrom) {//id required to fill form
             this.fillFieldsFrom();
         }
@@ -1278,11 +1330,6 @@ module.exports = tools;
 
         this.events = new this.spiral.modules.core.Events(["onBeforeSend", "onSuccess", "onError", "onAlways"]);
     };
-    /**
-     * @lends spiral.Form.prototype
-     */
-    Form.prototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
-
     /**
      * @override
      * @inheritDoc
@@ -1405,8 +1452,9 @@ module.exports = tools;
             e.stopPropagation();
             return;
         }
-        if (this.options.messagesType && this.spiral.Core.instances.Form.FormMessages.hasOwnProperty(this.options.messagesType)){
-            this.spiral.Core.instances.Form.FormMessages[this.options.messagesType].clear(this.options);
+        debugger
+        if (this.options.messagesType && this.getAddon('formMessages',this.options.messagesType)){
+            this.getAddon('formMessages',this.options.messagesType).clear(this.options);
         }
 
         this.options.data = this.getFormData();
@@ -1434,6 +1482,7 @@ module.exports = tools;
      * @param {Boolean} [remove]
      */
     Form.prototype.lock = function (remove) {
+        debugger
         if (!this.options.lockType || this.options.lockType === 'none' || !this.spiral.lock.types.hasOwnProperty(this.options.lockType)) return;
         this.spiral.lock[remove ? 'remove' : 'add'](this.options.lockType, this.options.context);
 
@@ -1516,13 +1565,214 @@ module.exports = tools;
     /**
      * Register form
      */
-    sf.instancesController.addInstanceType("form", "js-spiral-form", Form);
+    sf.instancesController.registerInstanceType(Form,"js-spiral-form");
 
 })(spiralFrontend);
 
 
 
 },{}],12:[function(require,module,exports){
+"use strict";
+
+
+(function(sf){
+    /**
+     * Closes form's main message.
+     */
+    function closeMessage() {
+        this.removeEventListener("click", closeMessage);
+        var alert = this.parentNode;
+        alert.parentNode.removeChild(alert);
+    }
+
+    /**
+     * Shows individual message for the form.
+     * @param {Object} formOptions
+     * @param {String} formOptions.messagePosition
+     * @param {Node} formOptions.context
+     * @param {String} type
+     * @param {String} message
+     */
+    function showMessage(formOptions, message, type) {
+        var alert, msg, close, parent;
+
+        alert = document.createElement("div");
+        alert.className = "alert form-msg " + type;
+
+        msg = document.createElement("div");
+        msg.className = "msg";
+        msg.innerHTML = message;
+
+        close = document.createElement("button");
+        close.className = "btn-close";
+        close.setAttribute("type", "button");
+        close.textContent = "×";
+
+        alert.appendChild(close);
+        alert.appendChild(msg);
+
+        if (formOptions.messagePosition === "bottom") {
+            parent = formOptions.context;
+            parent.appendChild(alert);
+        } else if (formOptions.messagePosition === "top") {
+            parent = formOptions.context;
+            parent.insertBefore(alert, parent.firstChild);
+        } else {
+            parent = document.querySelector(formOptions.messagePosition);
+            parent.appendChild(alert)
+        }
+
+        close.addEventListener("click", closeMessage);
+    }
+
+    /**
+     * Shows messages for inputs.
+     * @param {Object} formOptions
+     * @param {String} formOptions.messagesPosition
+     * @param {Node} formOptions.context
+     * @param {Object} messages
+     * @param {String} [type]
+     */
+    function showMessages(formOptions, messages, type) {
+        //todo for radio buttons - show message only for checked
+        var selector, msgType, msgText, nodes, i, l, group, msgEl;
+        type = type || "success";
+        for (var name in messages) {
+            if (!messages.hasOwnProperty(name)) continue;
+
+            if (typeof messages[name] === "string") {
+                msgType = type;
+                msgText = messages[name];
+            } else {
+                msgType = messages[name].type;
+                msgText = messages[name].text;
+            }
+
+            selector = "[name='" + name + "']";
+            nodes = formOptions.context.querySelectorAll(selector);
+            l = nodes.length;
+
+            if (l === 0) {
+                nodes = formOptions.context.querySelectorAll("[data-message='" + name + "']");
+            }
+
+            for (i = 0, l = nodes.length; i < l; i++) {
+                group = sf.module.helpers.domTools.closest(nodes[i], ".item-form");
+                if (!group) continue;
+                group.classList.add(msgType);
+
+                msgEl = document.createElement("span");
+                msgEl.className = "msg";
+                msgEl.innerHTML = msgText;
+
+                if (formOptions.messagesPosition === "bottom") {
+                    group.appendChild(msgEl);
+                } else if (formOptions.messagesPosition === "top") {
+                    group.insertBefore(msgEl, group.firstChild);
+                } else {
+                    var parent = group.querySelector(formOptions.messagesPosition);
+                    parent.appendChild(msgEl)
+                }
+            }
+        }
+    }
+
+
+    var spiralMessages  = {
+        /**
+         * Adds form's main message, input's messages, bootstrap classes has-... to form-groups.
+         * @param {Object} formOptions
+         * @param {Object} answer
+         * @param {Object|String} [answer.message]
+         * @param {String} [answer.message.type]
+         * @param {String} [answer.message.text]
+         * @param {String} [answer.error]
+         * @param {String} [answer.warning]
+         * @param {Object} [answer.messages]
+         * @param {Object} [answer.errors]
+         * @param {Object} [answer.warnings]
+         */
+        show: function (formOptions, answer) {
+            if (!answer) return;
+            var isMsg = false;
+            //if (formOptions.context.getElementsByClassName("alert").length > 0) {
+            //    this.clear(formOptions);//todo we really need to clear here? form clears onSubmit
+            //}
+
+            if (answer.message) {
+                showMessage(formOptions, answer.message.text || answer.message, answer.message.type || "success");
+                isMsg = true;
+            }
+            if (answer.error) {
+                showMessage(formOptions, answer.error, "error");
+                isMsg = true;
+            }
+            if (answer.warning) {
+                showMessage(formOptions, answer.warning, "warning");
+                isMsg = true;
+            }
+            if (answer.messages) {
+                showMessages(formOptions, answer.messages, "success");
+                isMsg = true;
+            }
+            if (answer.errors) {
+                showMessages(formOptions, answer.errors, "error");
+                isMsg = true;
+            }
+            if (answer.warnings) {
+                showMessages(formOptions, answer.warnings, "warning");
+                isMsg = true;
+            }
+            if (!isMsg) {
+                var error = answer.status ? answer.status + " " : "";
+                error += answer.statusText ? answer.statusText : "";
+                error += answer.data && !answer.statusText ? answer.data : "";
+                error += error.length === 0 ? answer : "";
+                showMessage(formOptions, error, "error");
+            }
+        },
+        /**
+         * Removes form's main message, input's messages, bootstrap classes has-... from form-groups.
+         * @param {Object} formOptions
+         * @param {String} formOptions.messagePosition
+         * @param {Node} formOptions.context
+         */
+        clear: function (formOptions) {
+            var msg, i, l, item;
+            if (formOptions.messagePosition === "bottom" || formOptions.messagePosition === "top") {
+                msg = formOptions.context.getElementsByClassName("form-msg")[0];
+            } else {
+                msg = document.querySelector(formOptions.messagePosition + ">.form-msg");
+            }
+            if (msg) {
+                msg.getElementsByClassName("btn-close")[0].removeEventListener("click", closeMessage);
+                msg.parentNode.removeChild(msg);
+            }
+
+            var alerts = formOptions.context.querySelectorAll(".item-form>.msg");//Remove all messages
+            for (i = 0, l = alerts.length; i < l; i++) {
+                item = alerts[i].parentNode;
+                item.removeChild(alerts[i]);
+                item.classList.remove("error", "success", "warning", "info");
+            }
+        }
+    };
+
+
+    /**
+     * Register form
+     */
+    sf.instancesController.registerAddon(spiralMessages,"form","formMessages","spiral");
+
+
+
+
+})(spiralFrontend);
+
+
+
+
+},{}],13:[function(require,module,exports){
 /**
  * Avoid `console` errors in browsers that lack a console.
  */
@@ -1547,6 +1797,177 @@ module.exports = tools;
         }
     }
 }());
+
+},{}],14:[function(require,module,exports){
+/*! github.com/serbanghita/formToObject.js 1.0.1  (c) 2013 Serban Ghita <serbanghita@gmail.com> @licence MIT */
+
+(function(){
+
+    // Constructor.
+	var formToObject = function( formRef ){
+
+		if( !formRef ){ return false; }
+
+		this.formRef       = formRef;
+		this.keyRegex      = /[^\[\]]+/g;
+		this.$form         = null;
+		this.$formElements = [];
+		this.formObj       = {};
+
+		if( !this.setForm() ){ return false; }
+		if( !this.setFormElements() ){ return false; }
+
+		return this.setFormObj();
+
+	};
+
+	// Set the main form object we are working on.
+	formToObject.prototype.setForm = function(){
+
+		switch( typeof this.formRef ){
+
+			case 'string':
+				this.$form = document.getElementById( this.formRef );
+			break;
+
+			case 'object':
+				if( this.isDomNode(this.formRef) ){
+					this.$form = this.formRef;
+				}
+			break;
+
+		}
+
+		return this.$form;
+
+	};
+
+	// Set the elements we need to parse.
+	formToObject.prototype.setFormElements = function(){
+		this.$formElements = this.$form.querySelectorAll('input, textarea, select');
+		return this.$formElements.length;
+	};
+
+	// Check to see if the object is a HTML node.
+	formToObject.prototype.isDomNode = function( node ){
+		return typeof node === "object" && "nodeType" in node && node.nodeType === 1;
+	};
+
+	// Iteration through arrays and objects. Compatible with IE.
+	formToObject.prototype.forEach = function( arr, callback ){
+
+		if([].forEach){
+			return [].forEach.call(arr, callback);
+		}
+
+		var i;
+		for(i in arr){
+			// Object.prototype.hasOwnProperty instead of arr.hasOwnProperty for IE8 compatibility.
+			if( Object.prototype.hasOwnProperty.call(arr,i) ){
+				callback.call(arr, arr[i]);
+			}
+		}
+
+		return;
+
+	}
+
+    // Recursive method that adds keys and values of the corresponding fields.
+	formToObject.prototype.addChild = function( result, domNode, keys, value ){
+
+		// #1 - Single dimensional array.
+		if(keys.length === 1){
+
+			// We're only interested in the radio that is checked.
+			if( domNode.nodeName === 'INPUT' && domNode.type === 'radio' ) {
+				if( domNode.checked ){
+					return result[keys] = value;
+				} else {
+					return;
+				}
+			}
+
+			// Checkboxes are a special case. We have to grab each checked values
+			// and put them into an array.
+			if( domNode.nodeName === 'INPUT' && domNode.type === 'checkbox' ) {
+
+				if( domNode.checked ){
+
+					if( !result[keys] ){
+						result[keys] = [];
+					}
+					return result[keys].push( value );
+
+				} else {
+					return;
+				}
+
+			}
+
+			// Multiple select is a special case.
+			// We have to grab each selected option and put them into an array.
+			if( domNode.nodeName === 'SELECT' && domNode.type === 'select-multiple' ) {
+
+				result[keys] = [];
+				var DOMchilds = domNode.querySelectorAll('option[selected]');
+				if( DOMchilds ){
+					this.forEach(DOMchilds, function(child){
+						result[keys].push( child.value );
+					});
+				}
+				return;
+
+			}
+
+			// Fallback. The default one to one assign.
+			result[keys] = value;
+
+		}
+
+		// #2 - Multi dimensional array.
+		if(keys.length > 1) {
+
+			if(!result[keys[0]]){
+				result[keys[0]] = {};
+			}
+
+			return this.addChild(result[keys[0]], domNode, keys.splice(1, keys.length), value);
+
+		}
+
+		return result;
+
+	};
+
+	formToObject.prototype.setFormObj = function(){
+
+		var test, i = 0;
+
+		for(i = 0; i < this.$formElements.length; i++){
+			// Ignore the element if the 'name' attribute is empty.
+			// Ignore the 'disabled' elements.
+			if( this.$formElements[i].name && !this.$formElements[i].disabled ) {
+				test = this.$formElements[i].name.match( this.keyRegex );
+				this.addChild( this.formObj, this.$formElements[i], test, this.$formElements[i].value );
+			}
+		}
+
+		return this.formObj;
+
+	}
+
+	// AMD/requirejs: Define the module
+	if( typeof define === 'function' && define.amd ) {
+		define(function () {
+			return formToObject;
+		});
+	}
+	// Browser: Expose to window
+	else {
+		window.formToObject = formToObject;
+	}
+
+})();
 
 },{}]},{},[1])
 //# sourceMappingURL=sf.js.map
