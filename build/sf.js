@@ -556,10 +556,10 @@ DomMutations.prototype.processMutationAttributes = function (mutation, classArra
             return (classArray.indexOf(val) !== -1);
         });
     removedRegisteredClasses.forEach(function (val) {
-        that.instancesController.removeInstance(val, mutation.target);
+        that.instancesController.removeInstance(that.instancesController.getInstanceNameByCssClass(val), mutation.target);
     });
     addedRegisteredClasses.forEach(function (val) {
-        that.instancesController.addInstance(val, mutation.target);
+        that.instancesController.addInstance(that.instancesController.getInstanceNameByCssClass(val), mutation.target);
     });
 
 };
@@ -579,7 +579,7 @@ DomMutations.prototype.processMutationChildList = function (nodesList, action, c
     function checkNode(node) {
         classArray.forEach(function (className) {//loop over registered classes
             if (node.classList.contains(className)) {//if class match try to add or remove instance for this node
-                that.instancesController[action](className, node);
+                that.instancesController[action](that.instancesController.getInstanceNameByCssClass(className), node);
             }
         });
     }
@@ -716,7 +716,10 @@ var InstancesController = function (spiral) {
         return;
     }
     this._storage = {
-        settings: {},
+        instancesConstructors: {
+            cssClasses:{},
+            jsConstructors:{}
+        },
         addons: {},
         instances: {}
     };
@@ -728,26 +731,42 @@ var InstancesController = function (spiral) {
 /**
  * Register new instance type
  * @param {Function} constructorFunction - constructor function of instance
- * @param {String} className - class name of instance
- * @param {Boolean} [isSkipInitialization]  - skip component initialization, just adding, no init nodes.
+ * @param {String} [cssClassName] - css class name of instance. If class not provided that it can't be automatically controlled by DomMutation. But you still can use it from JS.
+ * @param {Boolean} [isSkipInitialization=false]  - skip component initialization, just adding, no init nodes.
  */
-InstancesController.prototype.registerInstanceType = function (constructorFunction, className, isSkipInitialization) {
-    if (!constructorFunction.prototype.name){
+InstancesController.prototype.registerInstanceType = function (constructorFunction, cssClassName, isSkipInitialization) {
+    var instanceName = constructorFunction.prototype.name;
+
+    if (!instanceName){
         console.error("Instance constructor should have name inside it");
     }
-     if (this._storage.settings.hasOwnProperty(className)){
-        console.error("Instance Constructor for type %s already added. Skipping",constructorFunction.prototype.name);
+
+    if (this._storage.instancesConstructors.jsConstructors.hasOwnProperty(instanceName)){
+        console.error("Instance Constructor for type '%s' already added. Skipping",instanceName);
         return;
     }
-    this._storage.settings[className] = {//init storage fields
-        "typeName": constructorFunction.prototype.name,
-        "constructor": constructorFunction
-    };
-    this._storage.instances[constructorFunction.prototype.name] = [];
+
+    if (cssClassName){//add link (cssClassName->instanceName)
+        this._storage.instancesConstructors.cssClasses[cssClassName] = instanceName;
+    }
+
+    this._storage.instancesConstructors.jsConstructors[instanceName] = constructorFunction;
+
+
+
+    // if (this._storage.instancesConstructors.hasOwnProperty(className)){
+    //    console.error("Instance Constructor for type %s already added. Skipping",constructorFunction.prototype.name);
+    //    return;
+    //}
+    //this._storage.instancesConstructors[className] = {//init storage fields
+    //    "typeName": constructorFunction.prototype.name,
+    //    "constructor": constructorFunction
+    //};
+    this._storage.instances[instanceName] = [];
     if (!isSkipInitialization){
-        var nodes = document.getElementsByClassName(className);//init add nodes with this class
+        var nodes = document.getElementsByClassName(cssClassName);//init add nodes with this class
         for (var i = 0, max = nodes.length; i < max; i++) {
-            this.addInstance(className, nodes[i]);
+            this.addInstance(instanceName, nodes[i]);
         }
     }
 
@@ -763,6 +782,76 @@ InstancesController.prototype.registerInstanceType = function (constructorFuncti
 InstancesController.prototype.addInstanceType =function(className,constructorFunction, isSkipInitialization){
     console.warn("addInstanceType is deprecated. Please use registerInstanceType instead");
     return this.registerInstanceType(constructorFunction, isSkipInitialization);
+};
+
+
+/**
+ * Add instance
+ * @param {String} instanceName - name of instance
+ * @param {Object} node - dom node
+ * @param {Object} [options] all options for send to the constructor
+ * @returns {boolean}
+ */
+InstancesController.prototype.addInstance = function (instanceName, node, options) {
+    var instanceConstructor = this._storage.instancesConstructors.jsConstructors[instanceName],
+        isAlreadyAdded = this.getInstance(instanceName,node);
+    if (!instanceConstructor || isAlreadyAdded) {//if not found this type  or already added - return
+        return false;
+    }
+//    console.log("Adding instance for type -",instanceName,". Node - ",node);
+    var instance = new instanceConstructor(this.spiral,node, options);
+    this._storage.instances[instanceName].push({//add new instance of this type
+        "node": node,
+        "instance": instance
+    });
+
+    //this.events.trigger("onAddInstance", instance);
+
+    return true;
+};
+/**
+ * Remove instance.
+ * @param {String} instanceName - name of instance class
+ * @param {Object|String} node - dom node o dome node ID
+ * @returns {boolean}
+ */
+InstancesController.prototype.removeInstance = function (instanceName, node) {
+    var instanceObj = this.getInstance(instanceName, node,true),
+        key;
+    if (!instanceObj) {
+        return false;
+    }
+    instanceObj.instance.die();//avoid memory leak
+    key = this._storage.instances[instanceName].indexOf(instanceObj);
+    if (key !== -1){//remove key
+        this._storage.instances[instanceName].splice(key, 1);
+    }
+    return true;
+};
+/**
+ * Get instance. Return instance object of this dom node
+ * @param {String} instanceName - name of instance
+ * @param {Object|String} node - dom node o dome node ID
+ * @param {boolean} [isReturnObject] - return object or instance
+ * @returns {boolean}
+ */
+InstancesController.prototype.getInstance = function (instanceName, node, isReturnObject) {
+    var typeArr = this._storage.instances[instanceName],
+        ret = false;
+    if (!typeArr) {
+        return false;
+    }
+    node = (node instanceof HTMLElement) ? node : document.getElementById(node);
+    if (!node) {
+        return false;
+    }
+    for (var key = 0, l = typeArr.length; key < l; key++) {//iterate storage and try to find instance
+        if (typeArr[key].node === node) {
+            ret = (isReturnObject) ? typeArr[key] : typeArr[key].instance;
+            break;
+        }
+    }
+    return ret;
 };
 
 /**
@@ -800,82 +889,22 @@ InstancesController.prototype.getInstanceAddon =function(instanceName, addonType
     return this._storage.addons[instanceName][addonType][addonName];
 };
 
-/**
- * Add instance
- * @param {String} className - name of inited class
- * @param {Object} node - dom node
- * @param {Object} [options] all options for send to the constructor
- * @returns {boolean}
- */
-InstancesController.prototype.addInstance = function (className, node, options) {
-    var instanceType = this._storage.settings[className],
-        isAlreadyAdded = this.getInstance(instanceType.typeName,node);
-    if (!instanceType || isAlreadyAdded) {//if not found this type  or already added - return
-        return false;
-    }
-//    console.log("Adding instance for type -",setting.typeName,". Node - ",node);
-    var instance = new instanceType.constructor(this.spiral,node, options);
-    this._storage.instances[instanceType.typeName].push({//add new instance of this type
-        "node": node,
-        "instance": instance
-    });
-
-    //this.events.trigger("onAddInstance", instance);
-
-    return true;
-};
-/**
- * Remove instance.
- * @param {String} className - name of inited class
- * @param {Object|String} node - dom node o dome node ID
- * @returns {boolean}
- */
-InstancesController.prototype.removeInstance = function (className, node) {
-    var setting = this._storage.settings[className],
-        instanceObj = this.getInstance(setting.typeName, node,true),
-        key;
-    if (!instanceObj) {
-        return false;
-    }
-    instanceObj.instance.die();//avoid memory leak
-    key = this._storage.instances[setting.typeName].indexOf(instanceObj);
-    if (key !== -1){//remove key
-        this._storage.instances[setting.typeName].splice(key, 1);
-    }
-    return true;
-};
-/**
- * Get instance. Return instance object of this dom node
- * @param {String} typeName - type of instance
- * @param {Object|String} node - dom node o dome node ID
- * @param {boolean} [isReturnObject] - return object or instance
- * @returns {boolean}
- */
-InstancesController.prototype.getInstance = function (typeName, node, isReturnObject) {
-    var typeArr = this._storage.instances[typeName],
-        ret = false;
-    if (!typeArr) {
-        return false;
-    }
-    node = (node instanceof HTMLElement) ? node : document.getElementById(node);
-    if (!node) {
-        return false;
-    }
-    for (var key = 0, l = typeArr.length; key < l; key++) {//iterate storage and try to find instance
-        if (typeArr[key].node === node) {
-            ret = (isReturnObject) ? typeArr[key] : typeArr[key].instance;
-            break;
-        }
-    }
-    return ret;
-};
 
 /**
  * Get all registered classes
  * @returns {Array}
  */
 InstancesController.prototype.getClasses = function (){
-    return Object.keys(this._storage.settings);
+    return Object.keys(this._storage.instancesConstructors.cssClasses);
+};
+
+/**
+ * For given cssClass return name of instance
+ * @param {String} cssClass
+ * @return {*}
+ */
+InstancesController.prototype.getInstanceNameByCssClass = function(cssClass){
+    return this._storage.instancesConstructors.cssClasses[cssClass];
 };
 
 /**
@@ -1452,7 +1481,6 @@ module.exports = tools;
             e.stopPropagation();
             return;
         }
-        debugger
         if (this.options.messagesType && this.getAddon('formMessages',this.options.messagesType)){
             this.getAddon('formMessages',this.options.messagesType).clear(this.options);
         }
@@ -1482,7 +1510,7 @@ module.exports = tools;
      * @param {Boolean} [remove]
      */
     Form.prototype.lock = function (remove) {
-        debugger
+        //TODO refactor
         if (!this.options.lockType || this.options.lockType === 'none' || !this.spiral.lock.types.hasOwnProperty(this.options.lockType)) return;
         this.spiral.lock[remove ? 'remove' : 'add'](this.options.lockType, this.options.context);
 
@@ -1760,18 +1788,11 @@ module.exports = tools;
 
 
     /**
-     * Register form
+     * Register addon
      */
     sf.instancesController.registerAddon(spiralMessages,"form","formMessages","spiral");
 
-
-
-
 })(spiralFrontend);
-
-
-
-
 },{}],13:[function(require,module,exports){
 /**
  * Avoid `console` errors in browsers that lack a console.
