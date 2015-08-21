@@ -45,7 +45,9 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
 require("./lib/instances/form/addons/FormMessages/spiral"); //add form addon
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/helpers/DOMEvents":7,"./lib/helpers/LikeFormData":8,"./lib/helpers/domTools":9,"./lib/helpers/tools":10,"./lib/instances/form/Form.js":11,"./lib/instances/form/addons/FormMessages/spiral":12,"./lib/shim/console":13,"./lib/vendor/formToObject":14}],2:[function(require,module,exports){
+
+require("./lib/instances/lock/Lock.js"); //add form addon
+},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/helpers/DOMEvents":7,"./lib/helpers/LikeFormData":8,"./lib/helpers/domTools":9,"./lib/helpers/tools":10,"./lib/instances/form/Form.js":11,"./lib/instances/form/addons/FormMessages/spiral":12,"./lib/instances/lock/Lock.js":13,"./lib/shim/console":14,"./lib/vendor/formToObject":15}],2:[function(require,module,exports){
 "use strict";
 
 var tools = require("../helpers/tools");
@@ -317,6 +319,7 @@ BaseDOMConstructor.prototype.init = function (spiral,node,options) {
         this.options = tools.extend(this.options, options);
     }
     this.spiral = spiral;
+    this.node = node;
 };
 
 
@@ -807,12 +810,12 @@ InstancesController.prototype.addInstance = function (instanceName, node, option
 
     //this.events.trigger("onAddInstance", instance);
 
-    return true;
+    return instance;
 };
 /**
  * Remove instance.
  * @param {String} instanceName - name of instance class
- * @param {Object|String} node - dom node o dome node ID
+ * @param {Object|String} node - dom node  ID
  * @returns {boolean}
  */
 InstancesController.prototype.removeInstance = function (instanceName, node) {
@@ -1510,10 +1513,18 @@ module.exports = tools;
      * @param {Boolean} [remove]
      */
     Form.prototype.lock = function (remove) {
-        //TODO refactor
-        if (!this.options.lockType || this.options.lockType === 'none' || !this.spiral.lock.types.hasOwnProperty(this.options.lockType)) return;
-        this.spiral.lock[remove ? 'remove' : 'add'](this.options.lockType, this.options.context);
-
+        if (!this.options.lockType || this.options.lockType === 'none'){
+            return;
+        }
+        if (remove){
+            if (!this.spiral.instancesController.removeInstance("lock",this.node)){
+                console.warn("You try to remove 'lock' instance, but in not available or not started");
+            }
+        } else {
+            if (!this.spiral.instancesController.addInstance("lock",this.node,{type:this.options.lockType})){
+                console.warn("You try to add 'lock' instance, but in not available or already started");
+            }
+        }
     };
 
     /**
@@ -1794,6 +1805,120 @@ module.exports = tools;
 
 })(spiralFrontend);
 },{}],13:[function(require,module,exports){
+"use strict";
+
+(function(sf) {
+    /**
+     * Spiral lock for forms
+     * @constructor lock
+     */
+
+    var Lock = function(spiral, node, options){
+        this._construct(spiral, node, options);
+    };
+
+    /**
+     * @lends Lock.prototype
+     */
+    Lock.prototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
+
+    /**
+     * Name of module
+     * @type {string}
+     */
+    Lock.prototype.name = "lock";
+
+    /**
+     * Function that call on new instance is created.
+     * @param {Object} spiral
+     * @param {Object} node  DomNode of form
+     * @param {Object} [options] all options to override default
+     * @private
+     */
+    Lock.prototype._construct = function(spiral, node, options){
+        this.init(spiral, node, options);//call parent
+        this.add(this.options.type,this.node);
+    };
+    /**
+     * Add lock
+     * @param {String} [type] type of lock @see spiral.lock.types
+     * @param {Object} context context to add lock
+     * @returns {Function|*}
+     */
+    Lock.prototype.add =function(type, context){
+        if (!this.types.hasOwnProperty(type)){
+            return false;
+        }
+        var node = document.createElement("div");
+        node.className = "spiral-lock " + this.types[type].className;
+        node.innerHTML = this.types[type].html;
+        context.appendChild(node);
+        context.classList.add("locked");
+        return this.types[type].progress;
+    };
+    /**
+     * Clear all variables and die
+     */
+    Lock.prototype.die = function () {
+        this.remove();
+    };
+    /**
+     * Remove lock
+     */
+    Lock.prototype.remove = function(){
+        context.classList.remove("locked");
+        var spiralLock = this.node.querySelector(".spiral-lock");
+        if (spiralLock) {
+            this.node.removeChild(spiralLock);
+        }
+        return true;
+    };
+    /**
+     * Object with lock types.
+     * @enum {Object}
+     */
+    Lock.prototype.types  = {
+        /**
+         * default lock type. <b>className:</b>spiral-lock-default
+         * @type {Object}
+         */
+        "default": {
+            /**
+             * class name
+             * @inner
+             * @type String
+             */
+            className: "spiral-lock-default",
+            /**
+             * HTML
+             * @inner
+             * @type String
+             */
+            html: ''
+            /**
+             * Optional is to pass a function that will process progress. Below is example for bootstrap
+             * @param current
+             * @param total
+             * progress: function (current, total) {
+             *   var progress = this.context.getElementsByClassName("progress-bar")[0],
+             *       sr = progress.getElementsByClassName("sr-only")[0],
+             *       percent = ''+100 * (current / total);
+             *   progress.setAttribute("aria-valuenow", percent);
+             *   progress.style.width = percent + "%";
+             *   sr.innerHTML = percent + "%  Complete";
+             * }
+             */
+        }
+    };
+
+    /**
+     * Register lock
+     */
+    sf.instancesController.registerInstanceType(Lock);
+
+})(spiralFrontend);
+
+},{}],14:[function(require,module,exports){
 /**
  * Avoid `console` errors in browsers that lack a console.
  */
@@ -1819,7 +1944,7 @@ module.exports = tools;
     }
 }());
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*! github.com/serbanghita/formToObject.js 1.0.1  (c) 2013 Serban Ghita <serbanghita@gmail.com> @licence MIT */
 
 (function(){
