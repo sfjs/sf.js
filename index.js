@@ -43,6 +43,6 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
 
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/addons/FormMessages/spiral"); //add form addon
+require("./lib/instances/form/addons/formMessages/spiral"); //add form addon
 
 require("./lib/instances/lock/Lock.js"); //add lock
