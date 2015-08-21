@@ -5,8 +5,14 @@ var gulp = require('gulp');
 var fs = require('fs');
 var path = require('path');
 var exorcist = require('exorcist');
+var less = require('gulp-less');
+var rename = require('gulp-rename');
 
-gulp.task('build', function () {
+
+gulp.task('build', ['build-js', 'build-less']);
+
+
+gulp.task('build-js', function(){
     var browserify = Browserify({
         entries: './index.js',
         debug: true
@@ -19,6 +25,12 @@ gulp.task('build', function () {
             }
         )
     );
+});
 
+gulp.task('build-less', function(){
+    return gulp.src('index.less')
+        .pipe(less())
+        .pipe(rename('sf.css'))
+        .pipe(gulp.dest('./build'));
 });
 
