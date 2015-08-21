@@ -46,7 +46,7 @@ require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
 require("./lib/instances/form/addons/FormMessages/spiral"); //add form addon
 
-require("./lib/instances/lock/Lock.js"); //add form addon
+require("./lib/instances/lock/Lock.js"); //add lock
 },{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/helpers/DOMEvents":7,"./lib/helpers/LikeFormData":8,"./lib/helpers/domTools":9,"./lib/helpers/tools":10,"./lib/instances/form/Form.js":11,"./lib/instances/form/addons/FormMessages/spiral":12,"./lib/instances/lock/Lock.js":13,"./lib/shim/console":14,"./lib/vendor/formToObject":15}],2:[function(require,module,exports){
 "use strict";
 
@@ -815,7 +815,7 @@ InstancesController.prototype.addInstance = function (instanceName, node, option
 /**
  * Remove instance.
  * @param {String} instanceName - name of instance class
- * @param {Object|String} node - dom node  ID
+ * @param {Object|String} node - dom node ID
  * @returns {boolean}
  */
 InstancesController.prototype.removeInstance = function (instanceName, node) {
@@ -1479,7 +1479,7 @@ module.exports = tools;
      * @param {Event} e submit event
      */
     Form.prototype.onSubmit = function (e) {
-        if (this.options.context.classList.contains(("locked"))) {//if form locked return
+        if (this.options.context.classList.contains(("locked"))) {//if form locked return TODO refactor
             e.preventDefault();
             e.stopPropagation();
             return;
@@ -1551,8 +1551,8 @@ module.exports = tools;
                 return error;
             }).then(function(answer){
                 that.lock(true);
-                if (that.options.messagesType && that.spiral.Core.instances.Form.FormMessages.hasOwnProperty(that.options.messagesType)){
-                    that.spiral.Core.instances.Form.FormMessages[that.options.messagesType].show(that.options, answer);
+                if (that.options.messagesType && that.getAddon('formMessages',that.options.messagesType)){
+                    that.getAddon('formMessages',that.options.messagesType).show(that.options, answer);
                 }
                 that.events.trigger("onAlways", sendOptions);
             });
@@ -1866,7 +1866,7 @@ module.exports = tools;
      * Remove lock
      */
     Lock.prototype.remove = function(){
-        context.classList.remove("locked");
+        this.node.classList.remove("locked");
         var spiralLock = this.node.querySelector(".spiral-lock");
         if (spiralLock) {
             this.node.removeChild(spiralLock);
