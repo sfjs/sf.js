@@ -44,10 +44,10 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
 
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/addons/FormMessages/spiral"); //add form addon
+require("./lib/instances/form/addons/formMessages/spiral"); //add form addon
 
 require("./lib/instances/lock/Lock.js"); //add lock
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/helpers/DOMEvents":7,"./lib/helpers/LikeFormData":8,"./lib/helpers/domTools":9,"./lib/helpers/tools":10,"./lib/instances/form/Form.js":11,"./lib/instances/form/addons/FormMessages/spiral":12,"./lib/instances/lock/Lock.js":13,"./lib/shim/console":14,"./lib/vendor/formToObject":15}],2:[function(require,module,exports){
+},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/helpers/DOMEvents":7,"./lib/helpers/LikeFormData":8,"./lib/helpers/domTools":9,"./lib/helpers/tools":10,"./lib/instances/form/Form.js":11,"./lib/instances/form/addons/formMessages/spiral":12,"./lib/instances/lock/Lock.js":13,"./lib/shim/console":14,"./lib/vendor/formToObject":15}],2:[function(require,module,exports){
 "use strict";
 
 var tools = require("../helpers/tools");
@@ -838,7 +838,7 @@ InstancesController.prototype.removeInstance = function (instanceName, node) {
  * @param {boolean} [isReturnObject] - return object or instance
  * @returns {boolean}
  */
-InstancesController.prototype.getInstance = function (instanceName, node, isReturnObject) {
+InstancesController.prototype.getInstance = function (instanceName, node, isReturnObject) {//TODO isReturnObject not needed. Refactor and remove
     var typeArr = this._storage.instances[instanceName],
         ret = false;
     if (!typeArr) {
@@ -1479,7 +1479,7 @@ module.exports = tools;
      * @param {Event} e submit event
      */
     Form.prototype.onSubmit = function (e) {
-        if (this.options.context.classList.contains(("locked"))) {//if form locked return TODO refactor
+        if (this.spiral.instancesController.getInstance('lock',this.node)){//on lock we should'n do any actions
             e.preventDefault();
             e.stopPropagation();
             return;
@@ -1518,11 +1518,11 @@ module.exports = tools;
         }
         if (remove){
             if (!this.spiral.instancesController.removeInstance("lock",this.node)){
-                console.warn("You try to remove 'lock' instance, but in not available or not started");
+                console.warn("You try to remove 'lock' instance, but it not available or not started");
             }
         } else {
             if (!this.spiral.instancesController.addInstance("lock",this.node,{type:this.options.lockType})){
-                console.warn("You try to add 'lock' instance, but in not available or already started");
+                console.warn("You try to add 'lock' instance, but it not available or already started");
             }
         }
     };
