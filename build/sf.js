@@ -1604,7 +1604,7 @@ module.exports = tools;
     /**
      * Register form
      */
-    sf.instancesController.registerInstanceType(Form,"js-spiral-form");
+    sf.instancesController.registerInstanceType(Form,"js-sf-form");
 
 })(spiralFrontend);
 
@@ -1696,7 +1696,7 @@ module.exports = tools;
             }
 
             for (i = 0, l = nodes.length; i < l; i++) {
-                group = sf.module.helpers.domTools.closest(nodes[i], ".item-form");
+                group = sf.modules.helpers.domTools.closest(nodes[i], ".item-form");
                 if (!group) continue;
                 group.classList.add(msgType);
 
@@ -1850,7 +1850,7 @@ module.exports = tools;
             return false;
         }
         var node = document.createElement("div");
-        node.className = "spiral-lock " + this.types[type].className;
+        node.className = this.types[type].className || 'js-sf-lock';
         node.innerHTML = this.types[type].html;
         context.appendChild(node);
         context.classList.add("locked");
@@ -1867,7 +1867,7 @@ module.exports = tools;
      */
     Lock.prototype.remove = function(){
         this.node.classList.remove("locked");
-        var spiralLock = this.node.querySelector(".spiral-lock");
+        var spiralLock = this.node.querySelector(".js-sf-lock");//todo this.lockNode ?
         if (spiralLock) {
             this.node.removeChild(spiralLock);
         }
@@ -1879,37 +1879,37 @@ module.exports = tools;
      */
     Lock.prototype.types  = {
         /**
-         * default lock type. <b>className:</b>spiral-lock-default
          * @type {Object}
          */
-        "default": {
-            /**
-             * class name
-             * @inner
-             * @type String
-             */
-            className: "spiral-lock-default",
+        spinner: {
             /**
              * HTML
              * @inner
              * @type String
              */
-            html: ''
+            html: '<div class="sf-spinner"></div>'
+        },
+        progress: {
             /**
-             * Optional is to pass a function that will process progress. Below is example for bootstrap
+             * HTML
+             * @inner
+             * @type String
+             */
+            html: '<div class="sf-progress"><div class="progress-line"></div></div>',
+            /**
+             * Function to change styles while AJAX progress
              * @param current
              * @param total
-             * progress: function (current, total) {
-             *   var progress = this.context.getElementsByClassName("progress-bar")[0],
-             *       sr = progress.getElementsByClassName("sr-only")[0],
-             *       percent = ''+100 * (current / total);
-             *   progress.setAttribute("aria-valuenow", percent);
-             *   progress.style.width = percent + "%";
-             *   sr.innerHTML = percent + "%  Complete";
-             * }
              */
+            progress: function (current, total) {
+                var progress = this.context.getElementsByClassName("progress-line")[0];
+                progress.style.width = 100 * (current / total) + "%";
+            }
         }
     };
+
+    //we have to have some default locker, let it be spinner
+    Lock.prototype.types.default = Lock.prototype.types.spinner;
 
     /**
      * Register lock
