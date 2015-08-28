@@ -314,12 +314,12 @@ var BaseDOMConstructor = function () {
  */
 BaseDOMConstructor.prototype.init = function (spiral,node,options) {
     //TODO data-spiral-JSON
+    this.spiral = spiral;
+    this.node = node;
     this.options = tools.extend(this.getProcessedAttributes(node), this.getProcessedOptions(node));
     if (options) {//if we pass options extend all options by passed options
         this.options = tools.extend(this.options, options);
     }
-    this.spiral = spiral;
-    this.node = node;
 };
 
 
@@ -1610,6 +1610,19 @@ module.exports = tools;
         "data-after-submit": {// attribute of form
             "value": false, //default value
             "key": "afterSubmitCallback" // key to return
+        },
+        "data-headers": {// attribute of form
+            "value": {"Accept": "application/json"}, //default value
+            "key": "headers", // key to return
+            "processor": function (val, node, self) {
+                if (val === void 0 || val == null) return this.value;
+                val = JSON.parse(val);
+                if (!val[Object.keys(this.value)[0]]) {
+                    return self.spiral.modules.helpers.tools.extend(val, this.value)
+                } else {
+                    return val;
+                }
+            }
         }
     };
 
@@ -1695,11 +1708,6 @@ module.exports = tools;
                 fn.call(sendOptions);
             }
         }
-
-        sendOptions.headers = {//todo Probably we need to move this into defaults.
-            Accept: "application/json"
-        };
-
         this.spiral.ajax.send(sendOptions).then(
             function(answer){
                 that.events.trigger("onSuccess", sendOptions);
@@ -1732,7 +1740,7 @@ module.exports = tools;
      * @param {Object} opt options
      */
     Form.prototype.setOptions = function (opt) {
-        this.options = this.spiral.modules.tools.extend(this.options, opt);
+        this.options = this.spiral.modules.helpers.tools.extend(this.options, opt);
     };
 
     /**
