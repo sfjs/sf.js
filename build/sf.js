@@ -1454,7 +1454,7 @@ module.exports = tools;
 "use strict";
 
 (function(sf){
-
+    console.log(123);
     /**
      * Spiral Forms
      * @param {Object} spiral
@@ -2261,4 +2261,6 @@ module.exports = tools;
 })();
 
 },{}]},{},[1])
+
+
 //# sourceMappingURL=sf.js.map
