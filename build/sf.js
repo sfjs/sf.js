@@ -1454,7 +1454,6 @@ module.exports = tools;
 "use strict";
 
 (function(sf){
-    console.log(123);
     /**
      * Spiral Forms
      * @param {Object} spiral
