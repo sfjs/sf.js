@@ -45,6 +45,6 @@ require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessage
 require("./lib/core/ajax/actions.js"); //plugin to perform actions from the server
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/addons/formMessages/spiral"); //add form addon
+require("./lib/instances/form/addons/formMessages/formMessages"); //add form addon
 
 require("./lib/instances/lock/Lock.js"); //add lock
