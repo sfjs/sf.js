@@ -5,7 +5,8 @@ $response = [
     'status' => 400,
     'error' => 'common error goes here',
     'errors' => [
-        'inputName' => "error message goes here"
+        'inputError1' => "error message goes here",
+        'inputError2' => "message with one more error"
     ]
 ];
 

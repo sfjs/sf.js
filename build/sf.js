@@ -42,14 +42,14 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
     window.sf = sf;
 }
 
-require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessages addon to iterate form inputs
+require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessages module to iterate form inputs
 require("./lib/core/ajax/actions.js"); //plugin to perform actions from the server
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/addons/formMessages/formMessages"); //add form addon
+require("./lib/instances/form/formMessages"); //add form Messages handler
 
 require("./lib/instances/lock/Lock.js"); //add lock
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/addons/formMessages/formMessages":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/console":16,"./lib/vendor/formToObject":17}],2:[function(require,module,exports){
+},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/formMessages":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/console":16,"./lib/vendor/formToObject":17}],2:[function(require,module,exports){
 "use strict";
 
 var tools = require("../helpers/tools");
@@ -1454,6 +1454,9 @@ module.exports = tools;
 "use strict";
 
 (function(sf){
+
+    var formMessages = require("./formMessages");
+
     /**
      * Spiral Forms
      * @param {Object} spiral
@@ -1696,13 +1699,13 @@ module.exports = tools;
      * @param {Object|Boolean} [answer]
      */
     Form.prototype.processMessages = function (answer) {
-        if (!this.options.messagesType || !this.getAddon('formMessages', this.options.messagesType)) {
+        if (!this.options.messagesType || !formMessages) {
             return;
         }
         if (Object.prototype.toString.call(answer) === "[object Object]") {
-            this.getAddon('formMessages', this.options.messagesType).show(this.options, answer);
+            formMessages.show(this.options, answer);
         } else {
-            this.getAddon('formMessages', this.options.messagesType).clear(this.options);
+            formMessages.clear(this.options);
         }
     };
 
@@ -1787,7 +1790,7 @@ module.exports = tools;
 
 
 
-},{}],14:[function(require,module,exports){
+},{"./formMessages":14}],14:[function(require,module,exports){
 "use strict";
 
 
@@ -1869,7 +1872,6 @@ module.exports = tools;
             if (!_selector) {
                 msgEl.className ? _selector = msgEl.className : _selector = 'sf-group-message';
             }
-
             msgEl.classList.add(_selector);
 
             if (formOptions.messagesPosition === "bottom") {
@@ -1967,11 +1969,7 @@ module.exports = tools;
         }
     };
 
-
-    /**
-     * Register addon
-     */
-    sf.instancesController.registerAddon(spiralMessages, "form", "formMessages", "spiral");
+    module.exports = spiralMessages;
 
 })(spiralFrontend);
 },{}],15:[function(require,module,exports){
