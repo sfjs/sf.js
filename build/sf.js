@@ -46,10 +46,10 @@ require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessage
 require("./lib/core/ajax/actions.js"); //plugin to perform actions from the server
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/addons/formMessages/spiral"); //add form addon
+require("./lib/instances/form/addons/formMessages/formMessages"); //add form addon
 
 require("./lib/instances/lock/Lock.js"); //add lock
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/addons/formMessages/spiral":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/console":16,"./lib/vendor/formToObject":17}],2:[function(require,module,exports){
+},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/addons/formMessages/formMessages":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/console":16,"./lib/vendor/formToObject":17}],2:[function(require,module,exports){
 "use strict";
 
 var tools = require("../helpers/tools");
@@ -1466,7 +1466,6 @@ module.exports = tools;
         this._construct(spiral, node, options);
     };
 
-
     /**
      * @lends spiral.Form.prototype
      */
@@ -1486,7 +1485,21 @@ module.exports = tools;
      * @private
      */
     Form.prototype._construct = function(spiral, node, options){
-        this.init(spiral, node, options);//call parent
+
+        var msgOpts = {
+            messagesOptions: {
+                groups: { //for separate input fields
+                    selector: '.item-form',
+                    tag: 'span',
+                    class: 'msg'
+                },
+                message: {
+                    template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
+                    closeBtnSelector: '.btn-close'
+                }
+            }
+        };
+        this.init(spiral, node, spiral.modules.helpers.tools.extend(options || {}, msgOpts));//call parent
 
         if (this.options.fillFrom) {//id required to fill form
             this.fillFieldsFrom();
@@ -1798,35 +1811,31 @@ module.exports = tools;
      * @param {String} message
      */
     function showMessage(formOptions, message, type) {
-        var alert, msg, close, parent;
+        var msg, close, parent,
+            variables = {message: message, type: type},
+            tpl = formOptions.messagesOptions.message.template;
 
-        alert = document.createElement("div");
-        alert.className = "alert form-msg " + type;
+        for (var item in variables) {
+            if (variables.hasOwnProperty(item)) {
+                tpl = tpl.replace('${' + item + '}', variables[item]);
+            }
+        }
 
-        msg = document.createElement("div");
-        msg.className = "msg";
-        msg.innerHTML = message;
-
-        close = document.createElement("button");
-        close.className = "btn-close";
-        close.setAttribute("type", "button");
-        close.textContent = "×";
-
-        alert.appendChild(close);
-        alert.appendChild(msg);
+        msg = document.createElement('div');
+        msg.innerHTML = tpl;
 
         if (formOptions.messagePosition === "bottom") {
             parent = formOptions.context;
-            parent.appendChild(alert);
+            parent.appendChild(msg);
         } else if (formOptions.messagePosition === "top") {
             parent = formOptions.context;
-            parent.insertBefore(alert, parent.firstChild);
+            parent.insertBefore(msg, parent.firstChild);
         } else {
             parent = document.querySelector(formOptions.messagePosition);
-            parent.appendChild(alert)
+            parent.appendChild(msg)
         }
 
-        close.addEventListener("click", closeMessage);
+        msg.querySelector(formOptions.messagesOptions.message.closeBtnSelector).addEventListener("click", closeMessage);
     }
 
     /**
@@ -1839,12 +1848,12 @@ module.exports = tools;
      */
     function showMessages(formOptions, messages, type) {
         var notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, msg) {
-            var group = sf.modules.helpers.domTools.closest(el, ".item-form");
+            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groups.selector);
             if (!group) return;
             group.classList.add(type);
 
-            var msgEl = document.createElement("span");
-            msgEl.className = "msg";
+            var msgEl = document.createElement(formOptions.messagesOptions.groups.tag);
+            msgEl.className = formOptions.messagesOptions.groups.class;
             msgEl.innerHTML = msg;
 
             if (formOptions.messagesPosition === "bottom") {
