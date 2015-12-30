@@ -1466,6 +1466,7 @@ module.exports = tools;
         this._construct(spiral, node, options);
     };
 
+
     /**
      * @lends spiral.Form.prototype
      */
@@ -1490,8 +1491,7 @@ module.exports = tools;
             messagesOptions: {
                 groups: { //for separate input fields
                     selector: '.item-form',
-                    tag: 'span',
-                    class: 'msg'
+                    template: '<span class="msg">${message}</span>'
                 },
                 message: {
                     template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
@@ -1811,7 +1811,7 @@ module.exports = tools;
      * @param {String} message
      */
     function showMessage(formOptions, message, type) {
-        var msg, close, parent,
+        var msg, parent,
             variables = {message: message, type: type},
             tpl = formOptions.messagesOptions.message.template;
 
@@ -1847,14 +1847,20 @@ module.exports = tools;
      * @param {String} [type]
      */
     function showMessages(formOptions, messages, type) {
-        var notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, msg) {
-            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groups.selector);
+        var notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
+            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groups.selector),
+                variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groups.template;
             if (!group) return;
             group.classList.add(type);
 
-            var msgEl = document.createElement(formOptions.messagesOptions.groups.tag);
-            msgEl.className = formOptions.messagesOptions.groups.class;
-            msgEl.innerHTML = msg;
+            for (var item in variables) {
+                if (variables.hasOwnProperty(item)) {
+                    tpl = tpl.replace('${' + item + '}', variables[item]);
+                }
+            }
+
+            msgEl = document.createElement('div');
+            msgEl.innerHTML = tpl;
 
             if (formOptions.messagesPosition === "bottom") {
                 group.appendChild(msgEl);
