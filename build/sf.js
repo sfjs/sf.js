@@ -1699,7 +1699,6 @@ module.exports = tools;
         if (!this.options.messagesType || !this.getAddon('formMessages', this.options.messagesType)) {
             return;
         }
-
         if (Object.prototype.toString.call(answer) === "[object Object]") {
             this.getAddon('formMessages', this.options.messagesType).show(this.options, answer);
         } else {
@@ -1803,6 +1802,11 @@ module.exports = tools;
     }
 
     /**
+     * Selector for group-messages
+     */
+    var _selector = '';
+
+    /**
      * Shows individual message for the form.
      * @param {Object} formOptions
      * @param {String} formOptions.messagePosition
@@ -1847,6 +1851,7 @@ module.exports = tools;
      * @param {String} [type]
      */
     function showMessages(formOptions, messages, type) {
+        console.log('show');
         var notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
             var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groups.selector),
                 variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groups.template;
@@ -1861,6 +1866,11 @@ module.exports = tools;
 
             msgEl = document.createElement('div');
             msgEl.innerHTML = tpl;
+
+            if (!_selector) {
+                msgEl.className ? _selector = + msgEl.className : _selector = 'sf-group-message';
+            }
+            msgEl.classList.add(_selector);
 
             if (formOptions.messagesPosition === "bottom") {
                 group.appendChild(msgEl);
@@ -1946,12 +1956,13 @@ module.exports = tools;
                 msg.getElementsByClassName("btn-close")[0].removeEventListener("click", closeMessage);
                 msg.parentNode.removeChild(msg);
             }
-
-            var alerts = formOptions.context.querySelectorAll(".item-form>.msg");//Remove all messages
-            for (i = 0, l = alerts.length; i < l; i++) {
-                item = alerts[i].parentNode;
-                item.removeChild(alerts[i]);
-                item.classList.remove("error", "success", "warning", "info");
+            if (_selector) { //if form wasn't sent at least 1 time => still doesn't have messages' selectors
+                var alerts = formOptions.context.querySelectorAll(formOptions.messagesOptions.groups.selector + ' .' + _selector);//Remove all messages
+                for (i = 0, l = alerts.length; i < l; i++) {
+                    item = alerts[i].parentNode;
+                    item.removeChild(alerts[i]);
+                    item.classList.remove("error", "success", "warning", "info");
+                }
             }
         }
     };
