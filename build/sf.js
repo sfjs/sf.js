@@ -1817,7 +1817,8 @@ module.exports = tools;
     function showMessage(formOptions, message, type) {
         var msg, parent,
             variables = {message: message, type: type},
-            tpl = formOptions.messagesOptions.message.template;
+            tpl = formOptions.messagesOptions.message.template,
+            parser = new DOMParser();
 
         for (var item in variables) {
             if (variables.hasOwnProperty(item)) {
@@ -1825,8 +1826,7 @@ module.exports = tools;
             }
         }
 
-        msg = document.createElement('div');
-        msg.innerHTML = tpl;
+        msg = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
         if (formOptions.messagePosition === "bottom") {
             parent = formOptions.context;
@@ -1851,8 +1851,8 @@ module.exports = tools;
      * @param {String} [type]
      */
     function showMessages(formOptions, messages, type) {
-        console.log('show');
-        var notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
+        var parser = new DOMParser(),
+            notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
             var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groups.selector),
                 variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groups.template;
             if (!group) return;
@@ -1864,12 +1864,12 @@ module.exports = tools;
                 }
             }
 
-            msgEl = document.createElement('div');
-            msgEl.innerHTML = tpl;
+            msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
             if (!_selector) {
-                msgEl.className ? _selector = + msgEl.className : _selector = 'sf-group-message';
+                msgEl.className ? _selector = msgEl.className : _selector = 'sf-group-message';
             }
+
             msgEl.classList.add(_selector);
 
             if (formOptions.messagesPosition === "bottom") {
