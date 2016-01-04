@@ -1492,14 +1492,11 @@ module.exports = tools;
 
         var msgOpts = {
             messagesOptions: {
-                groups: { //for separate input fields
-                    selector: '.item-form',
-                    template: '<span class="msg">${message}</span>'
-                },
-                message: {
-                    template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
-                    closeBtnSelector: '.btn-close'
-                }
+                    groupSelector: '.item-form',
+                    groupTemplate: '<span class="msg">${message}<button class="btn-close">×</button></span>',
+                    groupCloseSelector: '.btn-close',
+                    formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
+                    formMessageCloseSelector: '.btn-close'
             }
         };
         this.init(spiral, node, spiral.modules.helpers.tools.extend(options || {}, msgOpts));//call parent
@@ -1573,6 +1570,13 @@ module.exports = tools;
         "data-messagesType": {
             "value": "spiral",
             "key": "messagesType"
+        },
+        /**
+         *
+         */
+        "data-messagesOptions": {
+            //"value": "{}",
+            "key": "messagesOptions"
         },
         /**
          * Position for the message. bottom || top || selector <b>Default: "bottom"</b>
@@ -1699,7 +1703,7 @@ module.exports = tools;
      * @param {Object|Boolean} [answer]
      */
     Form.prototype.processMessages = function (answer) {
-        if (!this.options.messagesType || !formMessages) {
+        if (!this.options.messagesType) {
             return;
         }
         if (Object.prototype.toString.call(answer) === "[object Object]") {
@@ -1820,7 +1824,7 @@ module.exports = tools;
     function showMessage(formOptions, message, type) {
         var msg, parent,
             variables = {message: message, type: type},
-            tpl = formOptions.messagesOptions.message.template,
+            tpl = formOptions.messagesOptions.formMessageTemplate,
             parser = new DOMParser();
 
         for (var item in variables) {
@@ -1841,8 +1845,8 @@ module.exports = tools;
             parent = document.querySelector(formOptions.messagePosition);
             parent.appendChild(msg)
         }
-
-        msg.querySelector(formOptions.messagesOptions.message.closeBtnSelector).addEventListener("click", closeMessage);
+        var closeBtn = msg.querySelector(formOptions.messagesOptions.formMessageCloseSelector);
+        if (closeBtn) closeBtn.addEventListener("click", closeMessage);
     }
 
     /**
@@ -1856,8 +1860,8 @@ module.exports = tools;
     function showMessages(formOptions, messages, type) {
         var parser = new DOMParser(),
             notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
-            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groups.selector),
-                variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groups.template;
+            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groupSelector),
+                variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groupTemplate;
             if (!group) return;
             group.classList.add(type);
 
@@ -1882,6 +1886,8 @@ module.exports = tools;
                 var parent = group.querySelector(formOptions.messagesPosition);
                 parent.appendChild(msgEl)
             }
+                var closeBtn = msgEl.querySelector(formOptions.messagesOptions.groupCloseSelector);
+                if (closeBtn) closeBtn.addEventListener("click", closeMessage);
         });
 
         //todo data-sf-message for notFound
@@ -1959,7 +1965,7 @@ module.exports = tools;
                 msg.parentNode.removeChild(msg);
             }
             if (_selector) { //if form wasn't sent at least 1 time => still doesn't have messages' selectors
-                var alerts = formOptions.context.querySelectorAll(formOptions.messagesOptions.groups.selector + ' .' + _selector);//Remove all messages
+                var alerts = formOptions.context.querySelectorAll(formOptions.messagesOptions.groupSelector + ' .' + _selector);//Remove all messages
                 for (i = 0, l = alerts.length; i < l; i++) {
                     item = alerts[i].parentNode;
                     item.removeChild(alerts[i]);

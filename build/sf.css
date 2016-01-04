@@ -380,6 +380,7 @@ table td.left-align {
   border: none;
   opacity: 0.2;
   cursor: pointer;
+  float: right;
 }
 .btn-icon:hover,
 .btn-close:hover {
