@@ -1490,17 +1490,18 @@ module.exports = tools;
      */
     Form.prototype._construct = function(spiral, node, options){
 
-        var msgOpts = {
-            messagesOptions: {
-                    groupSelector: '.item-form',
-                    groupTemplate: '<span class="msg">${message}<button class="btn-close">×</button></span>',
-                    groupCloseSelector: '.btn-close',
-                    formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
-                    formMessageCloseSelector: '.btn-close'
-            }
-        };
-        this.init(spiral, node, spiral.modules.helpers.tools.extend(options || {}, msgOpts));//call parent
+        var messagesOptions = {
+                groupSelector: '.item-form',
+                groupTemplate: '<span class="msg">${message}<button class="btn-close">×</button></span>',
+                groupCloseSelector: '.btn-close',
+                formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
+                formMessageCloseSelector: '.btn-close'
+            };
 
+        this.init(spiral, node, options);//call parent
+
+        //add default messagesOptions overwrited with grabbed ones from data-messagesOptions
+        this.options.messagesOptions = spiral.modules.helpers.tools.extend(messagesOptions, this.options.messagesOptions || {});
         if (this.options.fillFrom) {//id required to fill form
             this.fillFieldsFrom();
         }
@@ -1572,11 +1573,14 @@ module.exports = tools;
             "key": "messagesType"
         },
         /**
-         *
+         * Pass custom template for form messages
+         * (groupSelector, groupTemplate, groupCloseSelector, formMessageTemplate, formMessageCloseSelector)
          */
         "data-messagesOptions": {
-            //"value": "{}",
-            "key": "messagesOptions"
+            "key": "messagesOptions",
+            "processor": function (val) {
+                return JSON.parse(val);
+            }
         },
         /**
          * Position for the message. bottom || top || selector <b>Default: "bottom"</b>

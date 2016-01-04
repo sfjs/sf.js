@@ -1,15 +1,6 @@
 <?
 $msgOpts = [
-    'messagesOptions' => [
-        'groups' => [
-            'selector' => '.item-form',
-            'template' => '<span class="msg">${message}</span>'
-        ]
-    ],
-    'message' => [
-        'template' => '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
-        'closeBtnSelector' => '.btn-close'
-    ]
+    'groupTemplate' => '<span class="msg">${message}<button class="btn-close">Close</button></span>'
 ];
 ?>
 <!DOCTYPE html>
@@ -28,7 +19,7 @@ $msgOpts = [
 
 <h1>Test file</h1>
 
-<form class="js-sf-form" data-messagesOptions="<?= $msgOpts ?>" action="actions.php">
+<form class="js-sf-form" data-messagesOptions='<?= json_encode($msgOpts) ?>'  action="actions.php">
     <label class="item-form">
         <span class="item-label">Input with error</span>
         <input type="text" name="inputError1" value="Input Value" class="item-input"/>
