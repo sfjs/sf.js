@@ -14,8 +14,19 @@
 
 <h1>Test file</h1>
 
-<form class="js-sf-form">
-    <input name="inputName" value="Input Value"/>
+<form class="js-sf-form" action="actions.php">
+    <label class="item-form">
+        <span class="item-label">Input with error</span>
+        <input type="text" name="inputError1" value="Input Value" class="item-input"/>
+    </label>
+    <label class="item-form">
+        <span class="item-label">Correct input</span>
+        <input type="text" name="inputCorrect" value="Input Value" class="item-input"/>
+    </label>
+    <label class="item-form">
+        <span class="item-label">One more error</span>
+        <input type="text" name="inputError2" value="Input Value" class="item-input"/>
+    </label>
     <button>Send</button>
 </form>
 

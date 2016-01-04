@@ -42,14 +42,14 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
     window.sf = sf;
 }
 
-require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessages addon to iterate form inputs
+require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessages module to iterate form inputs
 require("./lib/core/ajax/actions.js"); //plugin to perform actions from the server
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/addons/formMessages/spiral"); //add form addon
+require("./lib/instances/form/formMessages"); //add form Messages handler
 
 require("./lib/instances/lock/Lock.js"); //add lock
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/addons/formMessages/spiral":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/console":16,"./lib/vendor/formToObject":17}],2:[function(require,module,exports){
+},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/formMessages":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/console":16,"./lib/vendor/formToObject":17}],2:[function(require,module,exports){
 "use strict";
 
 var tools = require("../helpers/tools");
@@ -1454,6 +1454,9 @@ module.exports = tools;
 "use strict";
 
 (function(sf){
+
+    var formMessages = require("./formMessages");
+
     /**
      * Spiral Forms
      * @param {Object} spiral
@@ -1486,7 +1489,20 @@ module.exports = tools;
      * @private
      */
     Form.prototype._construct = function(spiral, node, options){
-        this.init(spiral, node, options);//call parent
+
+        var msgOpts = {
+            messagesOptions: {
+                groups: { //for separate input fields
+                    selector: '.item-form',
+                    template: '<span class="msg">${message}</span>'
+                },
+                message: {
+                    template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
+                    closeBtnSelector: '.btn-close'
+                }
+            }
+        };
+        this.init(spiral, node, spiral.modules.helpers.tools.extend(options || {}, msgOpts));//call parent
 
         if (this.options.fillFrom) {//id required to fill form
             this.fillFieldsFrom();
@@ -1683,14 +1699,13 @@ module.exports = tools;
      * @param {Object|Boolean} [answer]
      */
     Form.prototype.processMessages = function (answer) {
-        if (!this.options.messagesType || !this.getAddon('formMessages', this.options.messagesType)) {
+        if (!this.options.messagesType || !formMessages) {
             return;
         }
-
         if (Object.prototype.toString.call(answer) === "[object Object]") {
-            this.getAddon('formMessages', this.options.messagesType).show(this.options, answer);
+            formMessages.show(this.options, answer);
         } else {
-            this.getAddon('formMessages', this.options.messagesType).clear(this.options);
+            formMessages.clear(this.options);
         }
     };
 
@@ -1775,7 +1790,7 @@ module.exports = tools;
 
 
 
-},{}],14:[function(require,module,exports){
+},{"./formMessages":14}],14:[function(require,module,exports){
 "use strict";
 
 
@@ -1790,6 +1805,11 @@ module.exports = tools;
     }
 
     /**
+     * Selector for group-messages
+     */
+    var _selector = '';
+
+    /**
      * Shows individual message for the form.
      * @param {Object} formOptions
      * @param {String} formOptions.messagePosition
@@ -1798,35 +1818,31 @@ module.exports = tools;
      * @param {String} message
      */
     function showMessage(formOptions, message, type) {
-        var alert, msg, close, parent;
+        var msg, parent,
+            variables = {message: message, type: type},
+            tpl = formOptions.messagesOptions.message.template,
+            parser = new DOMParser();
 
-        alert = document.createElement("div");
-        alert.className = "alert form-msg " + type;
+        for (var item in variables) {
+            if (variables.hasOwnProperty(item)) {
+                tpl = tpl.replace('${' + item + '}', variables[item]);
+            }
+        }
 
-        msg = document.createElement("div");
-        msg.className = "msg";
-        msg.innerHTML = message;
-
-        close = document.createElement("button");
-        close.className = "btn-close";
-        close.setAttribute("type", "button");
-        close.textContent = "×";
-
-        alert.appendChild(close);
-        alert.appendChild(msg);
+        msg = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
         if (formOptions.messagePosition === "bottom") {
             parent = formOptions.context;
-            parent.appendChild(alert);
+            parent.appendChild(msg);
         } else if (formOptions.messagePosition === "top") {
             parent = formOptions.context;
-            parent.insertBefore(alert, parent.firstChild);
+            parent.insertBefore(msg, parent.firstChild);
         } else {
             parent = document.querySelector(formOptions.messagePosition);
-            parent.appendChild(alert)
+            parent.appendChild(msg)
         }
 
-        close.addEventListener("click", closeMessage);
+        msg.querySelector(formOptions.messagesOptions.message.closeBtnSelector).addEventListener("click", closeMessage);
     }
 
     /**
@@ -1838,14 +1854,25 @@ module.exports = tools;
      * @param {String} [type]
      */
     function showMessages(formOptions, messages, type) {
-        var notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, msg) {
-            var group = sf.modules.helpers.domTools.closest(el, ".item-form");
+        var parser = new DOMParser(),
+            notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
+            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groups.selector),
+                variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groups.template;
             if (!group) return;
             group.classList.add(type);
 
-            var msgEl = document.createElement("span");
-            msgEl.className = "msg";
-            msgEl.innerHTML = msg;
+            for (var item in variables) {
+                if (variables.hasOwnProperty(item)) {
+                    tpl = tpl.replace('${' + item + '}', variables[item]);
+                }
+            }
+
+            msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
+
+            if (!_selector) {
+                msgEl.className ? _selector = msgEl.className : _selector = 'sf-group-message';
+            }
+            msgEl.classList.add(_selector);
 
             if (formOptions.messagesPosition === "bottom") {
                 group.appendChild(msgEl);
@@ -1931,21 +1958,18 @@ module.exports = tools;
                 msg.getElementsByClassName("btn-close")[0].removeEventListener("click", closeMessage);
                 msg.parentNode.removeChild(msg);
             }
-
-            var alerts = formOptions.context.querySelectorAll(".item-form>.msg");//Remove all messages
-            for (i = 0, l = alerts.length; i < l; i++) {
-                item = alerts[i].parentNode;
-                item.removeChild(alerts[i]);
-                item.classList.remove("error", "success", "warning", "info");
+            if (_selector) { //if form wasn't sent at least 1 time => still doesn't have messages' selectors
+                var alerts = formOptions.context.querySelectorAll(formOptions.messagesOptions.groups.selector + ' .' + _selector);//Remove all messages
+                for (i = 0, l = alerts.length; i < l; i++) {
+                    item = alerts[i].parentNode;
+                    item.removeChild(alerts[i]);
+                    item.classList.remove("error", "success", "warning", "info");
+                }
             }
         }
     };
 
-
-    /**
-     * Register addon
-     */
-    sf.instancesController.registerAddon(spiralMessages, "form", "formMessages", "spiral");
+    module.exports = spiralMessages;
 
 })(spiralFrontend);
 },{}],15:[function(require,module,exports){

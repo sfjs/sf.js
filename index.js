@@ -41,10 +41,10 @@ if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid co
     window.sf = sf;
 }
 
-require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessages addon to iterate form inputs
+require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessages module to iterate form inputs
 require("./lib/core/ajax/actions.js"); //plugin to perform actions from the server
 require("./lib/vendor/formToObject"); //formToObject  for form
 require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/addons/formMessages/spiral"); //add form addon
+require("./lib/instances/form/formMessages"); //add form Messages handler
 
 require("./lib/instances/lock/Lock.js"); //add lock
