@@ -34,7 +34,7 @@ Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationO
     <script src="sf.min.js"></script>
     <script src="crop.sf.js"></script>
     <form class="js-sf-form" action="/someAPI">
-        <input type="file" class="js-sf-form"> 
+        <input type="file" class="js-sf-crop"> 
         <button>Send</button>
     </form>
 ```
