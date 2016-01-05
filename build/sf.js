@@ -4,6 +4,7 @@
 
 //Add console shim for old IE
 require("./lib/shim/console");
+require("./lib/shim/Object.assign");
 
 var sf = {//Describe all modules to use it in plugins too.
     modules: {
@@ -49,7 +50,7 @@ require("./lib/instances/form/Form.js"); //add form
 require("./lib/instances/form/formMessages"); //add form Messages handler
 
 require("./lib/instances/lock/Lock.js"); //add lock
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/formMessages":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/console":16,"./lib/vendor/formToObject":17}],2:[function(require,module,exports){
+},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/formMessages":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/Object.assign":16,"./lib/shim/console":17,"./lib/vendor/formToObject":18}],2:[function(require,module,exports){
 "use strict";
 
 var tools = require("../helpers/tools");
@@ -289,7 +290,7 @@ module.exports = Ajax;
 
 },{"../core/Events":5,"../helpers/LikeFormData":9,"../helpers/tools":11}],3:[function(require,module,exports){
 "use strict";
-var tools = require("../helpers/tools");
+//var tools = require("../helpers/tools");
 /**
  * This a base constructor (class) for any DOM based instance.
  * This constructor just grab all node attributes and generates options. All processed options stored at this.options
@@ -312,14 +313,15 @@ var BaseDOMConstructor = function () {
  * @param {Object} node  DomNode of form
  * @param {Object} [options] all options to override default
  */
-BaseDOMConstructor.prototype.init = function (spiral,node,options) {
+BaseDOMConstructor.prototype.init = function (spiral, node, options) {
     //TODO data-spiral-JSON
     this.spiral = spiral;
     this.node = node;
-    this.options = tools.extend(this.getProcessedAttributes(node), this.getProcessedOptions(node));
-    if (options) {//if we pass options extend all options by passed options
-        this.options = tools.extend(this.options, options);
-    }
+    this.options = Object.assign(this.grabOptions(node), options);
+    //this.options = tools.extend(this.getProcessedAttributes(node), this.getProcessedOptions(node));
+    //if (options) {//if we pass options extend all options by passed options
+    //    this.options = tools.extend(this.options, options);
+    //}
 };
 
 
@@ -327,6 +329,7 @@ BaseDOMConstructor.prototype.init = function (spiral,node,options) {
  * This is a attributes to grab from node. All child should have own list of attributesToGrab.
  * All options are optional. But recommended to provide value or processor to avoid error when dom node have no this attribute
  * @type {Object}
+ * @deprecated
  * @property {Object} propertyKey - object of one attribute name
  * @property {String} propertyKey.value - default value (if attribute not provided this value will be returned
  * @property {String} propertyKey.key - key to return. If not provided will be use attribute of node ("propertyKey" in this case)
@@ -371,6 +374,7 @@ BaseDOMConstructor.prototype.attributesToGrab = {};
  * You should provide processor or value.
  * Key difference between attributesToGrab that optionsToProcess can generate some values (like init time, this reference, etc)
  * and this option is not depending on dom.
+ * @deprecated
  * @type {Object}
  * @property {Object} propertyKey - object of property
  * @property {String} propertyKey.value - default value to return
@@ -414,11 +418,132 @@ BaseDOMConstructor.prototype.attributesToGrab = {};
 BaseDOMConstructor.prototype.optionsToProcess = {};
 
 /**
+ * This is a options to generate.
+ * You should provide processor or value.
+ * @type {Object}
+ * @property {Object} propertyKey - object of property
+ * @property {String} propertyKey.value - default value to return
+ * @property {String} [propertyKey.domAttr] - dom attribute to grab data
+ * @property {Function} [propertyKey.processor] -  processor to process data before return
+ * @property {Object}  ... - Another object of one property
+ * @type {{}}
+ *  @example
+ * "someAttribute": {// key
+ *      value: true, //default Value
+ *      domAttr: "data-some-attribute", // attribute from node to grab
+ *      processor: function (node,val) { //processor to process values before return
+ *          //some calculations
+ *      return someValue;
+ *      }
+ *  },
+ *  "anotherAttribute":{...},
+ *  "..."
+ *
+ *  @example
+ *  //return node as value
+ *  "context": {
+ *      "processor": function (node,val) { //processor
+ *          return node;
+ *      }
+ *  },
+ *  "Another-key":{...},
+ *  "..."
+ * @example
+ * //Grab attribute "data-attribute" as "MyAttribute" if attribute not provided return "DefaultValue"
+ * // Dom node <div data-attribute="someValue"></div>
+ * "MyAttribute": {
+ *      value: "DefaultValue",
+ *      domAttr: "data-attribute"
+ *  }
+ *  //after processing we should have
+ *  {"MyAttribute":"someValue"}
+ *
+ *  @example
+ * //Grab attribute "data-attribute" as "MyAttribute" and return some value instead
+ * //Dom node  <div data-attribute="someValue"></div>
+ * "MyAttribute": {
+ *      domAttr: "data-attribute",
+ *      processor: function (node,val) {
+ *          return val+"SomeCalculation";
+ *      }
+ *  }
+ *  //after processing we should have
+ *  {"MyAttribute":"someValueSomeCalculation"}
+ *
+ * @example
+ * //return function as value
+ * processAnswer: {
+ *      "value": function (options) {
+ *         return "someVal";
+ *      }
+ *  //after processing we should have
+ *  {"processAnswer":function (options) {
+ *         return "someVal";
+ *      }
+ *   }
+ *
+ * @example
+ * //return init time as value
+ * initTime: {
+ *      "processor": function (option) {
+ *         return new Date().getTime;
+ *      }
+ *  //after processing we should have
+ *  {"initTime":1429808977404}
+ * @example
+ * //return other value instead of real one
+ * processAnswer: {
+ *      "processor": function (option) {
+ *         return "someVal";
+ *      }
+ *  //after processing we should have
+ *  {"processAnswer":"someVal"}
+ */
+BaseDOMConstructor.prototype.optionsToGrab = {};
+
+/**
+ * Grab all options that described in optionsToGrab
+ * @param {Object} node domNode
+ * @return {Object}
+ */
+BaseDOMConstructor.prototype.grabOptions = function (node) {
+    var options = {};
+    var currentOptionValue;
+    var currentOption;
+    for (var option in this.optionsToGrab) {
+        currentOptionValue = null;
+        if (this.optionsToGrab.hasOwnProperty(option)) {//if this is own option
+            currentOption = this.optionsToGrab[option];
+            if (currentOption.hasOwnProperty("value")) {//we have default option. Let's grab it for first
+                currentOptionValue = currentOption.value;
+            }
+
+            if (currentOption.hasOwnProperty("domAttr") && node.attributes.hasOwnProperty(currentOption.domAttr)) {//we can grab the attribute of node
+                currentOptionValue = node.attributes[currentOption.domAttr].value;
+            }
+
+            if (currentOption.hasOwnProperty("processor")) {//we have processor. Let's execute it
+                currentOptionValue = currentOption.processor.call(this, node, currentOptionValue, currentOption);
+            }
+
+            if (currentOptionValue !== null) {
+                options[option] = currentOptionValue;
+            }
+
+        }
+    }
+    return options;
+};
+
+/**
  * Iterate over this.attributesToGrab and get processed attributes from node
  * @param {Object} node dom node to grab attributes
  * @returns {Object}
+ * @deprecated
  */
 BaseDOMConstructor.prototype.getProcessedAttributes = function (node) {
+    console.warn("getProcessedAttributes method is deprecated. It will be removed in 0.5 version");
+    debugger;
     var options = {},
         index,
         key,
@@ -445,8 +570,11 @@ BaseDOMConstructor.prototype.getProcessedAttributes = function (node) {
  * Iterate over this.optionsToProcess and get processed options
  * Process options and return results
  * @param {Object} node dom node
+ * @deprecated
  */
 BaseDOMConstructor.prototype.getProcessedOptions = function (node) {
+    console.warn("getProcessedOptions method is deprecated. It will be removed in 0.5 version");
+    debugger;
     var options = {},
         index;
     for (index in this.optionsToProcess) {// loop over this.optionsToProcess
@@ -460,18 +588,20 @@ BaseDOMConstructor.prototype.getProcessedOptions = function (node) {
     }
     return options;
 };
+
+
 /**
  * Get addon for instance
  * @param {String} addonType type of addon (message,fill,etc)
  * @param {String} addonName name of addon
  */
-BaseDOMConstructor.prototype.getAddon = function(addonType, addonName){
+BaseDOMConstructor.prototype.getAddon = function (addonType, addonName) {
     return this.spiral.instancesController.getInstanceAddon(this.name, addonType, addonName);
 };
 
 module.exports = BaseDOMConstructor;
 
-},{"../helpers/tools":11}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 /**
  * Dom mutation. Listening to the DOM and add or remove instances based on classes.
@@ -1454,7 +1584,6 @@ module.exports = tools;
 "use strict";
 
 (function(sf){
-
     var formMessages = require("./formMessages");
 
     /**
@@ -1525,16 +1654,150 @@ module.exports = tools;
          * Link to form
          */
         "context": {
-            "processor": function (form) { //processor
-                return form;
+            "processor": function (node,val) { //processor
+                return node;
             }
         },
         /**
          * Link to 'this'
          */
         self: {
-            "processor": function (form) {
+            "processor": function (node,val) {
                 return this;
+            }
+        }
+    };
+    /**
+     * @override
+     * @inheritDoc
+     * @enum {Object}
+     * @deprecated
+     */
+    Form.prototype.optionsToGrab = {
+        /**
+         * Link to form
+         */
+        "context": {
+            "processor": function (node,val) { //processor
+                return node;
+            }
+        },
+        /**
+         * Link to 'this'
+         */
+        self: {
+            "processor": function (node,val) {
+                return this;
+            }
+        },
+        /**
+         * URL to send form (if ajax form) <b>Default: "/"</b>
+         */
+        "url": {
+            "domAttr": "action",
+            "value": "/"
+        },
+        /**
+         * Method to send to send form (if ajax form) <b>Default: "POST"</b>
+         */
+        "method": {
+            "domAttr": "method",
+            "value": "POST"
+        },
+        /**
+         * Lock type when form sending <b>Default: "default"</b> @see spiral.lock
+         */
+        "lockType": {
+            "value": "default",
+            "domAttr": "data-lockType"
+        },
+        /**
+         *
+         */
+        "messagesType": {
+            "value": "spiral",
+            "domAttr": "data-messagesType"
+        },
+        /**
+         * Pass custom template for form messages
+         * (groupSelector, groupTemplate, groupCloseSelector, formMessageTemplate, formMessageCloseSelector)
+         */
+        "messagesOptions": {
+            "processor": function (node,val) {
+                return JSON.parse(val);
+            },
+            "domAttr": "data-messagesOptions"
+        },
+        /**
+         * Position for the message. bottom || top || selector <b>Default: "bottom"</b>
+         */
+        "messagePosition": {
+            "value": "bottom",
+            "domAttr": "data-messagePosition"
+        },
+        /**
+         * Position of the inputs messages. bottom || top || selector <b>Default: "bottom"</b>
+         */
+        "messagesPosition": {
+            "value": "bottom",
+            "domAttr": "data-messagesPosition"
+        },
+        /**
+         * Use ajax to submit form <b>Default: true</b>
+         */
+        "useAjax": {// attribute of form
+            "value": true, //default value
+            "domAttr": "data-useAjax",
+            "processor": function (node,val) { // processor to process data before return
+                if (typeof val === "boolean"){
+                    return val;
+                }
+                val = (val !== void 0 && val !== null) ? val.toLowerCase() : '';
+                if (val === 'false') {
+                    val = false;
+                } else if (val === 'true') {
+                    val = true;
+                }
+                return val;
+            }
+        },
+        /**
+         * Callback after form submitting <b>Default: false</b>
+         * <br/>
+         * <b> Example </b>
+         * function(options){
+     *  //options contains all options after send
+     * }
+         */
+        "ajaxCallback": {// attribute of form
+            "value": false, //default value
+            "domAttr": "data-callback"
+        },
+        "beforeSubmitCallback": {// attribute of form
+            "value": false, //default value
+            "domAttr": "data-before-submit"
+        },
+        "afterSubmitCallback": {// attribute of form
+            "value": false, //default value
+            "domAttr": "data-after-submit"
+        },
+        "headers": {// attribute of form
+            "value": {"Accept": "application/json"}, //default value
+            "domAttr": "data-headers",
+            "processor": function (node,val, self) {
+                if (val === void 0 || val == null) return this.value;
+                try {
+                    val = JSON.parse(val);
+                }catch (e){
+                    console.error(e);
+                }
+                return Object.assign(self.value, val);
+
+                //if (!val[Object.keys(self.value)[0]]) {
+                //    return Object.assign(val, self.value)
+                //} else {
+                //    return val;
+                //}
             }
         }
     };
@@ -1795,9 +2058,6 @@ module.exports = tools;
     sf.instancesController.registerInstanceType(Form,"js-sf-form");
 
 })(spiralFrontend);
-
-
-
 },{"./formMessages":14}],14:[function(require,module,exports){
 "use strict";
 
@@ -1958,6 +2218,7 @@ module.exports = tools;
          * @param {Node} formOptions.context
          */
         clear: function (formOptions) {
+            debugger
             var msg, i, l, item;
             if (formOptions.messagePosition === "bottom" || formOptions.messagePosition === "top") {
                 msg = formOptions.context.getElementsByClassName("form-msg")[0];
@@ -2098,6 +2359,34 @@ module.exports = tools;
 
 },{}],16:[function(require,module,exports){
 /**
+ * Object.assign polyfill
+ * https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+ */
+if (typeof Object.assign != 'function') {
+    (function () {
+        Object.assign = function (target) {
+            'use strict';
+            if (target === undefined || target === null) {
+                throw new TypeError('Cannot convert undefined or null to object');
+            }
+
+            var output = Object(target);
+            for (var index = 1; index < arguments.length; index++) {
+                var source = arguments[index];
+                if (source !== undefined && source !== null) {
+                    for (var nextKey in source) {
+                        if (source.hasOwnProperty(nextKey)) {
+                            output[nextKey] = source[nextKey];
+                        }
+                    }
+                }
+            }
+            return output;
+        };
+    })();
+}
+},{}],17:[function(require,module,exports){
+/**
  * Avoid `console` errors in browsers that lack a console.
  */
 (function () {
@@ -2122,7 +2411,7 @@ module.exports = tools;
     }
 }());
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*! github.com/serbanghita/formToObject.js 1.0.1  (c) 2013 Serban Ghita <serbanghita@gmail.com> @licence MIT */
 
 (function(){

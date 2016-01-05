@@ -1,6 +1,6 @@
 {
   "name": "sf.js",
-  "version": "3.0.0",
+  "version": "0.3.5",
   "description": "Spiral Scout Frontend Framework",
   "main": "index.js",
   "repository": {

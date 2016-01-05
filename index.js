@@ -3,6 +3,7 @@
 
 //Add console shim for old IE
 require("./lib/shim/console");
+require("./lib/shim/Object.assign");
 
 var sf = {//Describe all modules to use it in plugins too.
     modules: {

@@ -54,7 +54,7 @@ $msgOpts = [
     <button>Send</button>
 </form>
 </div>
-<script type="application/javascript" src="../../build/sf.min.js"></script>
+<script type="application/javascript" src="../../build/sf.js"></script>
 
 </body>
 </html>
