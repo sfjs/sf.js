@@ -1,22 +1,18 @@
-sf.js Spiral Frontend micro-framework for RAD (beta)
-===================================================
+#sf.js Spiral Frontend micro-framework for RAD (beta)
 
 sf.js is made because we wanted to auto init javascript modules/components/plugins.
 
--What if your module (ajax form for example) will be show later? 
--Why should you manually init/teardown it?
--Why at all you should go to script and init it?
+-What if your module (ajax form for example) will be show later?  
+-Why should you manually init/teardown it?  
+-Why at all you should go to script and init it?  
 
-This sf.js will do for you:
--Init module when it's DOM node is there. 
--Teardown module when it's DOM node is removed.
+This sf.js will do for you:  
+-Init module when it's DOM node is there.  
+-Teardown module when it's DOM node is removed.  
 
 Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationObserver)
 
-TODO Create separate repository for guide/docs #14
-
-Examples:
-========
+#Examples:
 ##sf.js includes ajax-form module by default
 ```html
     <script src="sf.min.js"></script>
@@ -43,8 +39,7 @@ Examples:
     </form>
 ```
 
-How it works (in short)
-=======================
+#How it works (in short)
 Each module is a constructor function and should be registered in sf.js
 ```javascript
 var Crop = function (sf, node, options) {
@@ -55,20 +50,10 @@ Crop.prototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
 sf.instancesController.registerInstanceType(Crop,"js-sf-crop");
 ```
 
-Then, instancesController looks at DOM, and initialize new instance of module for each matched DOM node.
+Then, instancesController looks at DOM, and initialize new instance of module for each matched DOM node.  
 Also it will init new instances if DOM node will be added later.
 
-## Local Development
-
-### Installation
-
-    npm install -g gulp
-    npm install
-
-### Building
-
-    gulp build - compile and browserify
-    
+#todo documentation #14
 
 ## License
 
