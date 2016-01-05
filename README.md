@@ -1,8 +1,8 @@
-#sf.js Spiral Frontend micro-framework for RAD (beta)
+#sf.js Spiral Frontend micro-framework
 
 sf.js is made because we wanted to auto init javascript modules/components/plugins.
 
--What if your module (ajax form for example) will be show later?  
+-What if your module (ajax form for example) will be shown later?  
 -Why should you manually init/teardown it?  
 -Why at all you should go to script and init it?  
 
@@ -34,7 +34,7 @@ Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationO
     <script src="sf.min.js"></script>
     <script src="crop.sf.js"></script>
     <form class="js-sf-form" action="/someAPI">
-        <input type="file" class="js-sf-form"> 
+        <input type="file" class="js-sf-crop"> 
         <button>Send</button>
     </form>
 ```
