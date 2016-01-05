@@ -1,0 +1,35 @@
+{
+  "opts":{
+    "destination": "./jsdoc",
+    "recurse": true,
+    "verbose":true,
+    "template": "node_modules/jaguarjs-jsdoc",
+    "tutorials___": "./tutorials"
+  },
+  "source": {
+    "include": ["./lib", "./package.json", "./README.md"]
+  },
+  "plugins": [
+    "plugins/markdown",
+    "./gulp/plugins/jsdoc/escapeHtmlExamples.js"
+  ],
+  "templates": {
+    "applicationName": "Spiral js",
+    "disqus": "",
+    "googleAnalytics": "",
+    "openGraph": {
+      "title": "",
+      "type": "website",
+      "image": "",
+      "site_name": "",
+      "url": ""
+    },
+    "meta": {
+      "title": "Spiral js documentation",
+      "description": "",
+      "keyword": ""
+    },
+    "linenums": true
+  }
+
+}
