@@ -7,7 +7,7 @@
     "tutorials___": "./tutorials"
   },
   "source": {
-    "include": ["./lib", "./package.json", "./README.md"]
+    "include": ["./src", "./package.json", "./README.md"]
   },
   "plugins": [
     "plugins/markdown",

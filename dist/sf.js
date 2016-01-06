@@ -1,57 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
-//https://github.com/spiral/sf.js
-
-//Add console shim for old IE
-require("./lib/shim/console");
-require("./lib/shim/Object.assign");
-
-var sf = {//Describe all modules to use it in plugins too.
-    modules: {
-        core: {
-            Ajax: require("./lib/core/Ajax"),
-            BaseDOMConstructor: require("./lib/core/BaseDOMConstructor"),
-            DomMutations:require("./lib/core/DomMutations"),
-            Events: require("./lib/core/Events"),
-            InstancesController: require("./lib/core/InstancesController")
-        },
-        helpers: {
-            DOMEvents:require("./lib/helpers/DOMEvents"),
-            domTools:require("./lib/helpers/domTools"),
-            LikeFormData: require("./lib/helpers/LikeFormData"),
-            tools: require("./lib/helpers/tools")
-        }
-    }
-};
-
-sf.instancesController = new sf.modules.core.InstancesController(sf);
-sf.domMutation = new sf.modules.core.DomMutations(sf.instancesController);
-
-//create global ajax
-sf.ajax = new sf.modules.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
-    headers: {
-        "X-CSRF-Token": window.csrfToken
-    }
-} : null);
-
-window.spiral = sf; //TODO remove?
-
-
-window.spiralFrontend = sf;
-
-if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid conflicts with other libs
-    window.sf = sf;
-}
-
-require("./lib/helpers/tools/iterateInputs.js"); //plugin is used in formMessages module to iterate form inputs
-require("./lib/core/ajax/actions.js"); //plugin to perform actions from the server
-require("./lib/vendor/formToObject"); //formToObject  for form
-require("./lib/instances/form/Form.js"); //add form
-require("./lib/instances/form/formMessages"); //add form Messages handler
-
-require("./lib/instances/lock/Lock.js"); //add lock
-},{"./lib/core/Ajax":2,"./lib/core/BaseDOMConstructor":3,"./lib/core/DomMutations":4,"./lib/core/Events":5,"./lib/core/InstancesController":6,"./lib/core/ajax/actions.js":7,"./lib/helpers/DOMEvents":8,"./lib/helpers/LikeFormData":9,"./lib/helpers/domTools":10,"./lib/helpers/tools":11,"./lib/helpers/tools/iterateInputs.js":12,"./lib/instances/form/Form.js":13,"./lib/instances/form/formMessages":14,"./lib/instances/lock/Lock.js":15,"./lib/shim/Object.assign":16,"./lib/shim/console":17,"./lib/vendor/formToObject":18}],2:[function(require,module,exports){
-"use strict";
 
 var tools = require("../helpers/tools");
 var Events = require("../core/Events");
@@ -84,7 +32,8 @@ Ajax.prototype.headers = {
 
 /**
  * Send ajax request to server
- * @since 3.0.0
+ * Will return promise or array with promise and XMLHttpRequest : {window.Promise|[window.Promise,XMLHttpRequest]}
+ * @since 0.4.0
  * @param {Object} options object with options
  * @param {String} options.url url to send data
  * @param {Object|String} [options.data] data to send
@@ -92,7 +41,7 @@ Ajax.prototype.headers = {
  * @param {Object} [options.headers] headers to add to the request
  * @param {Function} [options.onProgress] callback function on progress. Two callback options: current bytes sent,totalBytes
  * @param {Function} [options.isReturnXHRToo===false] should method return array instead of Promise. Some times is needed to control ajax (abort, etc). If tree then  [window.Promise,XMLHttpRequest ] will be returned
- * @returns {window.Promise|[window.Promise,XMLHttpRequest]}
+ * @returns {Promise|Array}
  */
 Ajax.prototype.send = function (options) {
     var that = this;
@@ -288,7 +237,7 @@ Ajax.prototype._parseJSON = function (xhr) {
 
 module.exports = Ajax;
 
-},{"../core/Events":5,"../helpers/LikeFormData":9,"../helpers/tools":11}],3:[function(require,module,exports){
+},{"../core/Events":4,"../helpers/LikeFormData":8,"../helpers/tools":10}],2:[function(require,module,exports){
 "use strict";
 //var tools = require("../helpers/tools");
 /**
@@ -601,7 +550,7 @@ BaseDOMConstructor.prototype.getAddon = function (addonType, addonName) {
 
 module.exports = BaseDOMConstructor;
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 "use strict";
 /**
  * Dom mutation. Listening to the DOM and add or remove instances based on classes.
@@ -739,7 +688,7 @@ module.exports = DomMutations;
 
 
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 
 /**
@@ -834,7 +783,7 @@ Events.prototype.trigger = function (event, options) {
 Events.prototype.performAction = Events.prototype.trigger;
 
 module.exports = Events;
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1042,22 +991,15 @@ InstancesController.prototype.getInstanceNameByCssClass = function(cssClass){
 
 /**
  * Get constructor by name or class name
- * @returns
  */
 InstancesController.prototype.getInstanceConstructors = function (name){
 
    //TODO
 };
 
-
-
-
 module.exports = InstancesController;
 
-
-
-
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1119,7 +1061,7 @@ module.exports = InstancesController;
     });
 
 })(sf.ajax);
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 /**
  * Helper to manipulate DOM Events. It's a simple wrapper around "addEventListener" but it's store all functions and allow us to remove it all.
@@ -1205,7 +1147,7 @@ DOMEvents.prototype.removeAll = function(){
 };
 
 module.exports = DOMEvents;
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1385,7 +1327,7 @@ LikeFormData.prototype.getContentTypeHeader = function () {
 
 
 module.exports = LikeFormData;
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
  This is a collection of useful DOM tools.
  */
@@ -1440,7 +1382,7 @@ module.exports = {
         return false;
     }
 };
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1502,7 +1444,7 @@ var tools = {
 };
 
 module.exports = tools;
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 //todo comment all of this
 //todo ask @Systerr the reason of variable 'prefix'
@@ -1580,7 +1522,59 @@ module.exports = tools;
     };
 
 })(sf);
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
+"use strict";
+//https://github.com/spiral/sf.js
+
+//Add console shim for old IE
+require("./shim/console");
+require("./shim/Object.assign");
+
+var sf = {//Describe all modules to use it in plugins too.
+    modules: {
+        core: {
+            Ajax: require("./core/Ajax"),
+            BaseDOMConstructor: require("./core/BaseDOMConstructor"),
+            DomMutations:require("./core/DomMutations"),
+            Events: require("./core/Events"),
+            InstancesController: require("./core/InstancesController")
+        },
+        helpers: {
+            DOMEvents:require("./helpers/DOMEvents"),
+            domTools:require("./helpers/domTools"),
+            LikeFormData: require("./helpers/LikeFormData"),
+            tools: require("./helpers/tools")
+        }
+    }
+};
+
+sf.instancesController = new sf.modules.core.InstancesController(sf);
+sf.domMutation = new sf.modules.core.DomMutations(sf.instancesController);
+
+//create global ajax
+sf.ajax = new sf.modules.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
+    headers: {
+        "X-CSRF-Token": window.csrfToken
+    }
+} : null);
+
+window.spiral = sf; //TODO remove?
+
+
+window.spiralFrontend = sf;
+
+if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid conflicts with other libs
+    window.sf = sf;
+}
+
+require("./helpers/tools/iterateInputs.js"); //plugin is used in formMessages module to iterate form inputs
+require("./core/ajax/actions.js"); //plugin to perform actions from the server
+require("./vendor/formToObject"); //formToObject  for form
+require("./instances/form/Form.js"); //add form
+require("./instances/form/formMessages"); //add form Messages handler
+
+require("./instances/lock/Lock.js"); //add lock
+},{"./core/Ajax":1,"./core/BaseDOMConstructor":2,"./core/DomMutations":3,"./core/Events":4,"./core/InstancesController":5,"./core/ajax/actions.js":6,"./helpers/DOMEvents":7,"./helpers/LikeFormData":8,"./helpers/domTools":9,"./helpers/tools":10,"./helpers/tools/iterateInputs.js":11,"./instances/form/Form.js":13,"./instances/form/formMessages":14,"./instances/lock/Lock.js":15,"./shim/Object.assign":16,"./shim/console":17,"./vendor/formToObject":18}],13:[function(require,module,exports){
 "use strict";
 
 (function(sf){
@@ -1591,7 +1585,7 @@ module.exports = tools;
      * @param {Object} spiral
      * @param {Object} node  DomNode of form
      * @param {Object} [options] all options to override default
-     * @constructor
+     * @constructor Form
      * @extends BaseDOMConstructor
      */
     var Form = function (spiral, node, options) {
@@ -2158,9 +2152,10 @@ module.exports = tools;
     }
 
 
-    var spiralMessages = {
+    module.exports = {
         /**
          * Adds form's main message, input's messages, bootstrap-like classes has-... to form-groups.
+         * @constructor spiralMessages
          * @param {Object} formOptions
          * @param {Object} answer
          * @param {Object|String} [answer.message]
@@ -2218,7 +2213,6 @@ module.exports = tools;
          * @param {Node} formOptions.context
          */
         clear: function (formOptions) {
-            debugger
             var msg, i, l, item;
             if (formOptions.messagePosition === "bottom" || formOptions.messagePosition === "top") {
                 msg = formOptions.context.getElementsByClassName("form-msg")[0];
@@ -2240,7 +2234,6 @@ module.exports = tools;
         }
     };
 
-    module.exports = spiralMessages;
 
 })(spiralFrontend);
 },{}],15:[function(require,module,exports){
@@ -2249,7 +2242,7 @@ module.exports = tools;
 (function(sf) {
     /**
      * Spiral lock for forms
-     * @constructor lock
+     * @constructor Lock
      */
 
     var Lock = function(spiral, node, options){
@@ -2582,7 +2575,7 @@ if (typeof Object.assign != 'function') {
 
 })();
 
-},{}]},{},[1])
+},{}]},{},[12])
 
 
 //# sourceMappingURL=sf.js.map

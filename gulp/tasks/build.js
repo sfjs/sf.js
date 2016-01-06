@@ -14,7 +14,7 @@ var gutil = require('gulp-util');
 
 var browserify = function(){
     return Browserify({
-        entries: './index.js',
+        entries: './src/index.js',
         debug: true
     });
 };
@@ -32,7 +32,7 @@ gulp.task('build-js-max', function () {
         .pipe(sourcemaps.init({loadMaps: true}))
         .on('error', gutil.log)
         .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(path.join(process.cwd(), 'build')));
+        .pipe(gulp.dest(path.join(process.cwd(), 'dist')));
 });
 
 gulp.task('build-js-min', function () {
@@ -43,7 +43,7 @@ gulp.task('build-js-min', function () {
         .pipe(uglify())
         .on('error', gutil.log)
         .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(path.join(process.cwd(), 'build')));
+        .pipe(gulp.dest(path.join(process.cwd(), 'dist')));
 });
 
 gulp.task('build-js', ['build-js-max', 'build-js-min']);
@@ -68,9 +68,9 @@ gulp.task('build', ['build-js', 'build-less']);
 
 
 gulp.task('build-less', function(){
-    return gulp.src('index.less')
+    return gulp.src('./src/index.less')
         .pipe(less())
         .pipe(rename('sf.css'))
-        .pipe(gulp.dest('./build'));
+        .pipe(gulp.dest('./dist'));
 });
 

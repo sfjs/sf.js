@@ -8,7 +8,7 @@ $msgOpts = [
 <head lang="en">
     <meta charset="UTF-8">
     <title>Demo example</title>
-    <link rel="stylesheet" href="../../build/sf.css"/>
+    <link rel="stylesheet" href="../../dist/sf.css"/>
     <style>
         .js-sf-form {
             width: 480px;
@@ -54,7 +54,7 @@ $msgOpts = [
     <button>Send</button>
 </form>
 </div>
-<script type="application/javascript" src="../../build/sf.js"></script>
+<script type="application/javascript" src="../../dist/sf.js"></script>
 
 </body>
 </html>
