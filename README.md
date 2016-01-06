@@ -1,5 +1,7 @@
 #sf.js Spiral Frontend micro-framework
 
+[![devDependency Status](https://david-dm.org/spiral/sf.js/dev-status.svg)](https://david-dm.org/spiral/sf.js#info=devDependencies)
+
 sf.js is made because we wanted to auto init javascript modules/components/plugins.
 
 -What if your module (ajax form for example) will be shown later?  
