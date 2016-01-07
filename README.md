@@ -1,6 +1,9 @@
 #sf.js Spiral Frontend micro-framework (alpha)
 
+[![build Status](https://api.travis-ci.org/spiral/sf.js.svg)](https://travis-ci.org/spiral/sf.js)
 [![devDependency Status](https://david-dm.org/spiral/sf.js/dev-status.svg)](https://david-dm.org/spiral/sf.js#info=devDependencies)
+
+
 
 sf.js has been made to auto init javascript modules/components/plugins.
 
