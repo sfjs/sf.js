@@ -1,16 +1,8 @@
-#sf.js Spiral Frontend micro-framework
+#sf.js Spiral Frontend micro-framework (alpha)
 
 [![devDependency Status](https://david-dm.org/spiral/sf.js/dev-status.svg)](https://david-dm.org/spiral/sf.js#info=devDependencies)
 
-sf.js is made because we wanted to auto init javascript modules/components/plugins.
-
--What if your module (ajax form for example) will be shown later?  
--Why should you manually init/teardown it?  
--Why at all you should go to script and init it?  
-
-This sf.js will do for you:  
--Init module when it's DOM node is there.  
--Teardown module when it's DOM node is removed.  
+sf.js has been made to auto init javascript modules/components/plugins.
 
 Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationObserver)
 
