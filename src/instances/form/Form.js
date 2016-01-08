@@ -350,7 +350,7 @@
         if (!window.FormData && this.options.context.querySelectorAll("input[type='file']").length !== 0) {
             this.options.useAjax = false;
         }
-
+        this.events.trigger("onBeforeSend", this.options);
         //spiral.events.performAction("beforeSubmit", this.options);
         //this.events.performAction("beforeSubmit", this.options);
 
