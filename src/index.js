@@ -49,3 +49,7 @@ require("./instances/form/Form.js"); //add form
 require("./instances/form/formMessages"); //add form Messages handler
 
 require("./instances/lock/Lock.js"); //add lock
+
+if(typeof exports === "object" && exports) {
+    module.exports = sf;
+}
