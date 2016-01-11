@@ -15,7 +15,7 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             {pattern: 'node_modules/chai/chai.js', include: true},//include chai library
-            {pattern: 'test/unit/**/*.js', included: true}, //include tests
+            {pattern: 'test/unit/**/*.spec.js', included: true}, //include tests
             {pattern: 'src/index.js', included: true} //include sources. It's for coverage generation
         ],
 
@@ -27,7 +27,7 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'test/unit/**/*.js': ['browserify'],
+            'test/unit/**/*.spec.js': ['browserify'],
             'src/index.js': ['browserify']
         },
 

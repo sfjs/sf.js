@@ -32,7 +32,7 @@ sf.ajax = new sf.modules.core.Ajax(window.csrfToken ? {//TODO move to spiral bin
         "X-CSRF-Token": window.csrfToken
     }
 } : null);
-
+debugger
 window.spiral = sf; //TODO remove?
 
 
