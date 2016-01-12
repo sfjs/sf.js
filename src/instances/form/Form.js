@@ -203,11 +203,14 @@
             "domAttr": "data-headers",
             "processor": function (node,val, self) {
                 if (val === void 0 || val == null) return this.value;
-                try {
-                    val = JSON.parse(val);
-                }catch (e){
-                    console.error(e);
+                if (typeof val == "string"){
+                    try {
+                        val = JSON.parse(val);
+                    }catch (e){
+                        console.error("Form JSON.parse error: ",e);
+                    }
                 }
+
                 return Object.assign(self.value, val);
 
                 //if (!val[Object.keys(self.value)[0]]) {
