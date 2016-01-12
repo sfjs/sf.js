@@ -210,14 +210,7 @@
                         console.error("Form JSON.parse error: ",e);
                     }
                 }
-
                 return Object.assign(self.value, val);
-
-                //if (!val[Object.keys(self.value)[0]]) {
-                //    return Object.assign(val, self.value)
-                //} else {
-                //    return val;
-                //}
             }
         }
     };
