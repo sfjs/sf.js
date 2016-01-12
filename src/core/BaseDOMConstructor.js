@@ -43,7 +43,7 @@ BaseDOMConstructor.prototype.init = function (spiral, node, options) {
  * "someAttribute": {// key
  *      value: true, //default Value
  *      domAttr: "data-some-attribute", // attribute from node to grab
- *      processor: function (node,val) { //processor to process values before return
+ *      processor: function (node,val,self) { //processor to process values before return
  *          //some calculations
  *      return someValue;
  *      }
@@ -54,7 +54,7 @@ BaseDOMConstructor.prototype.init = function (spiral, node, options) {
  *  @example
  *  //return node as value
  *  "context": {
- *      "processor": function (node,val) { //processor
+ *      "processor": function (node,val,key) { //processor
  *          return node;
  *      }
  *  },
@@ -75,7 +75,7 @@ BaseDOMConstructor.prototype.init = function (spiral, node, options) {
  * //Dom node  <div data-attribute="someValue"></div>
  * "MyAttribute": {
  *      domAttr: "data-attribute",
- *      processor: function (node,val) {
+ *      processor: function (node,val,self) {
  *          return val+"SomeCalculation";
  *      }
  *  }
@@ -97,7 +97,7 @@ BaseDOMConstructor.prototype.init = function (spiral, node, options) {
  * @example
  * //return init time as value
  * initTime: {
- *      "processor": function (option) {
+ *      "processor": function (node,val,self) {
  *         return new Date().getTime;
  *      }
  *  //after processing we should have
@@ -105,7 +105,7 @@ BaseDOMConstructor.prototype.init = function (spiral, node, options) {
  * @example
  * //return other value instead of real one
  * processAnswer: {
- *      "processor": function (option) {
+ *      "processor": function (node,val,self) {
  *         return "someVal";
  *      }
  *  //after processing we should have
