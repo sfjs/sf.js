@@ -176,4 +176,4 @@
      */
     sf.instancesController.registerAddon(messageBootstrap, "form", "formMessages", "bootstrap");
 
-})(spiralFrontend);
+})(sf);

@@ -6,8 +6,8 @@
      * @constructor Lock
      */
 
-    var Lock = function(spiral, node, options){
-        this._construct(spiral, node, options);
+    var Lock = function(sf, node, options){
+        this._construct(sf, node, options);
     };
 
     /**
@@ -23,18 +23,18 @@
 
     /**
      * Function that call on new instance is created.
-     * @param {Object} spiral
+     * @param {Object} sf
      * @param {Object} node  DomNode of form
      * @param {Object} [options] all options to override default
      * @private
      */
-    Lock.prototype._construct = function(spiral, node, options){
-        this.init(spiral, node, options);//call parent
+    Lock.prototype._construct = function(sf, node, options){
+        this.init(sf, node, options);//call parent
         this.add(this.options.type,this.node);
     };
     /**
      * Add lock
-     * @param {String} [type] type of lock @see spiral.lock.types
+     * @param {String} [type] type of lock @see sf.lock.types
      * @param {Object} context context to add lock
      * @returns {Function|*}
      */
@@ -60,9 +60,9 @@
      */
     Lock.prototype.remove = function(){
         this.node.classList.remove("locked");
-        var spiralLock = this.node.querySelector(".js-sf-lock");//todo this.lockNode ?
-        if (spiralLock) {
-            this.node.removeChild(spiralLock);
+        var sfLock = this.node.querySelector(".js-sf-lock");//todo this.lockNode ?
+        if (sfLock) {
+            this.node.removeChild(sfLock);
         }
         return true;
     };
@@ -109,4 +109,4 @@
      */
     sf.instancesController.registerInstanceType(Lock);
 
-})(spiralFrontend);
+})(sf);

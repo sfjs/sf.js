@@ -5,19 +5,19 @@
 
     /**
      * Spiral Forms
-     * @param {Object} spiral
+     * @param {Object} sf
      * @param {Object} node  DomNode of form
      * @param {Object} [options] all options to override default
      * @constructor Form
      * @extends BaseDOMConstructor
      */
-    var Form = function (spiral, node, options) {
-        this._construct(spiral, node, options);
+    var Form = function (sf, node, options) {
+        this._construct(sf, node, options);
     };
 
 
     /**
-     * @lends spiral.Form.prototype
+     * @lends sf.Form.prototype
      */
     Form.prototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
 
@@ -29,12 +29,12 @@
 
     /**
      * Function that call on new instance is created.
-     * @param {Object} spiral
+     * @param {Object} sf
      * @param {Object} node  DomNode of form
      * @param {Object} [options] all options to override default
      * @private
      */
-    Form.prototype._construct = function(spiral, node, options){
+    Form.prototype._construct = function(sf, node, options){
 
         var messagesOptions = {
                 groupSelector: '.item-form',
@@ -44,10 +44,10 @@
                 formMessageCloseSelector: '.btn-close'
             };
 
-        this.init(spiral, node, options);//call parent
+        this.init(sf, node, options);//call parent
 
         //add default messagesOptions overwrited with grabbed ones from data-messagesOptions
-        this.options.messagesOptions = spiral.modules.helpers.tools.extend(messagesOptions, this.options.messagesOptions || {});
+        this.options.messagesOptions = sf.modules.helpers.tools.extend(messagesOptions, this.options.messagesOptions || {});
         if (this.options.fillFrom) {//id required to fill form
             this.fillFieldsFrom();
         }
@@ -56,10 +56,10 @@
          * @type {DOMEvents}
          * @inheritDoc
          * */
-        this.DOMEvents = new this.spiral.modules.helpers.DOMEvents();
+        this.DOMEvents = new this.sf.modules.helpers.DOMEvents();
         this.addEvents();
 
-        this.events = new this.spiral.modules.core.Events(["onBeforeSend", "onSuccess", "onError", "onAlways"]);
+        this.events = new this.sf.modules.core.Events(["onBeforeSend", "onSuccess", "onError", "onAlways"]);
     };
     /**
      * @override
@@ -122,7 +122,7 @@
             "value": "POST"
         },
         /**
-         * Lock type when form sending <b>Default: "default"</b> @see spiral.lock
+         * Lock type when form sending <b>Default: "default"</b> @see sf.lock
          */
         "lockType": {
             "value": "default",
@@ -235,7 +235,7 @@
             "value": "POST"
         },
         /**
-         * Lock type when form sending <b>Default: "default"</b> @see spiral.lock
+         * Lock type when form sending <b>Default: "default"</b> @see sf.lock
          */
         "data-lockType": {
             "value": "default",
@@ -317,7 +317,7 @@
                 if (val === void 0 || val == null) return this.value;
                 val = JSON.parse(val);
                 if (!val[Object.keys(this.value)[0]]) {
-                    return self.spiral.modules.helpers.tools.extend(val, this.value)
+                    return self.sf.modules.helpers.tools.extend(val, this.value)
                 } else {
                     return val;
                 }
@@ -331,7 +331,7 @@
      * @param {Event} e submit event
      */
     Form.prototype.onSubmit = function (e) {
-        if (this.spiral.instancesController.getInstance('lock',this.node)){//on lock we should'n do any actions
+        if (this.sf.instancesController.getInstance('lock',this.node)){//on lock we should'n do any actions
             e.preventDefault();
             e.stopPropagation();
             return;
@@ -347,7 +347,7 @@
             this.options.useAjax = false;
         }
         this.events.trigger("onBeforeSend", this.options);
-        //spiral.events.performAction("beforeSubmit", this.options);
+        //sf.events.performAction("beforeSubmit", this.options);
         //this.events.performAction("beforeSubmit", this.options);
 
         if (this.options.useAjax) {
@@ -368,11 +368,11 @@
             return;
         }
         if (remove){
-            if (!this.spiral.instancesController.removeInstance("lock",this.node)){
+            if (!this.sf.instancesController.removeInstance("lock",this.node)){
                 console.warn("You try to remove 'lock' instance, but it is not available or not started");
             }
         } else {
-            if (!this.spiral.instancesController.addInstance("lock",this.node,{type:this.options.lockType})){
+            if (!this.sf.instancesController.addInstance("lock",this.node,{type:this.options.lockType})){
                 console.warn("You try to add 'lock' instance, but it is not available or already started");
             }
         }
@@ -406,7 +406,7 @@
                 fn.call(sendOptions);
             }
         }
-        this.spiral.ajax.send(sendOptions).then(
+        this.sf.ajax.send(sendOptions).then(
             function(answer){
                 that.events.trigger("onSuccess", sendOptions);
                 return answer;
@@ -438,7 +438,7 @@
      * @param {Object} opt options
      */
     Form.prototype.setOptions = function (opt) {
-        this.options = this.spiral.modules.helpers.tools.extend(this.options, opt);
+        this.options = this.sf.modules.helpers.tools.extend(this.options, opt);
     };
 
     /**
@@ -470,4 +470,4 @@
      */
     sf.instancesController.registerInstanceType(Form,"js-sf-form");
 
-})(spiralFrontend);
+})(sf);

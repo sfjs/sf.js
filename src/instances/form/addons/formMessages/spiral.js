@@ -169,4 +169,4 @@
      */
     sf.instancesController.registerAddon(spiralMessages, "form", "formMessages", "spiral");
 
-})(spiralFrontend);
+})(sf);

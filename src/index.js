@@ -32,10 +32,6 @@ sf.ajax = new sf.modules.core.Ajax(window.csrfToken ? {//TODO move to spiral bin
         "X-CSRF-Token": window.csrfToken
     }
 } : null);
-window.spiral = sf; //TODO remove?
-
-
-window.spiralFrontend = sf;
 
 if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid conflicts with other libs
     window.sf = sf;
@@ -45,8 +41,6 @@ require("./helpers/tools/iterateInputs.js"); //plugin is used in formMessages mo
 require("./core/ajax/actions.js"); //plugin to perform actions from the server
 require("./vendor/formToObject"); //formToObject  for form
 require("./instances/form/Form.js"); //add form
-require("./instances/form/formMessages"); //add form Messages handler
-
 require("./instances/lock/Lock.js"); //add lock
 
 if(typeof exports === "object" && exports) {

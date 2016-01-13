@@ -18,13 +18,13 @@ var BaseDOMConstructor = function () {
 };
 /**
  * Init method. Call after construct instance
- * @param {Object} spiral
+ * @param {Object} sf
  * @param {Object} node  DomNode of form
  * @param {Object} [options] all options to override default
  */
-BaseDOMConstructor.prototype.init = function (spiral, node, options) {
+BaseDOMConstructor.prototype.init = function (sf, node, options) {
     //TODO data-spiral-JSON
-    this.spiral = spiral;
+    this.sf = sf;
     this.node = node;
     this.options = Object.assign(this.grabOptions(node), options);
 };
