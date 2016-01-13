@@ -237,7 +237,7 @@ Ajax.prototype._parseJSON = function (xhr) {
 
 module.exports = Ajax;
 
-},{"../core/Events":4,"../helpers/LikeFormData":8,"../helpers/tools":10}],2:[function(require,module,exports){
+},{"../core/Events":4,"../helpers/LikeFormData":9,"../helpers/tools":11}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -857,27 +857,26 @@ module.exports = InstancesController;
  * "action":{"redirect":"/account","delay":3000}
  * "action":{"name":"redirect","url":"/account","delay":3000}
  */
-(function (sfAjax) {
-
-    sfAjax.events.on('load', function (options) {
+module.exports = function (sf) {
+    sf.ajax.events.on('load', function (options) {
         var response = options.response;
         if (response.hasOwnProperty('action')) {
             if (typeof response.action === 'string') {//"action":"reload"
-                sfAjax.actions.trigger(response.action);
+                sf.events.trigger(response.action);
             } else if (typeof response.action === 'object') {
                 var keys = Object.keys(response.action);
                 if (keys.length === 1) {//"action":{"redirect":"/account"}
-                    sfAjax.actions.trigger(keys[0], response.action[keys[0]], options);
+                    sf.events.trigger(keys[0], response.action[keys[0]], options);
                 } else if (keys.length === 2 && response.action.delay) {//"action":{"redirect":"/account","delay":3000}
                     setTimeout(function () {
                         var action = keys.filter(function (value) {
                             return value !== 'delay';
                         })[0];
-                        sfAjax.actions.trigger(action, response.action[action], options);
+                        sf.events.trigger(action, response.action[action], options);
                     }, +response.action.delay);
                 } else if (keys.length > 1) {//"action":{"name":"redirect","url":"/account","delay":3000}
                     setTimeout(function () {
-                        sfAjax.actions.trigger(response.action.name, response.action, options);
+                        sf.events.trigger(response.action.name, response.action, options);
                     }, +response.action.delay || 0);
                 } else {
                     console.error("Action from server. Object doesn't have keys. ", response.action);
@@ -887,29 +886,28 @@ module.exports = InstancesController;
             }
         }
     });
-
-    sfAjax.actions = new sf.modules.core.Events();
-
-    sfAjax.actions.on("redirect", function (action) {
-        var url = Object.prototype.toString.call(action) === "[object String]" ? action : action.url;
+};
+},{}],7:[function(require,module,exports){
+module.exports = function(events){
+    events.on("redirect", function (event) {
+        var url = Object.prototype.toString.call(event) === "[object String]" ? event : event.url;
         //http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
         window.location[/^(?:[a-z]+:)?\/\//i.test(url) ? 'href' : 'pathname'] = url;
     });
 
-    sfAjax.actions.on('reload', function () {
+    events.on('reload', function () {
         location.reload();
     });
 
-    sfAjax.actions.on('refresh', function () {
-        sfAjax.actions.trigger('reload');
+    events.on('refresh', function () {
+        events.trigger('reload');
     });
 
-    sfAjax.actions.on('close', function () {
+    events.on('close', function () {
         window.close();
     });
-
-})(sf.ajax);
-},{}],7:[function(require,module,exports){
+};
+},{}],8:[function(require,module,exports){
 "use strict";
 /**
  * Helper to manipulate DOM Events. It's a simple wrapper around "addEventListener" but it's store all functions and allow us to remove it all.
@@ -995,7 +993,7 @@ DOMEvents.prototype.removeAll = function(){
 };
 
 module.exports = DOMEvents;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1175,7 +1173,7 @@ LikeFormData.prototype.getContentTypeHeader = function () {
 
 
 module.exports = LikeFormData;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /**
  This is a collection of useful DOM tools.
  */
@@ -1230,7 +1228,7 @@ module.exports = {
         return false;
     }
 };
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 /**
@@ -1292,85 +1290,86 @@ var tools = {
 };
 
 module.exports = tools;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
+//plugin in formMessages to iterate form inputs
+
 //todo comment all of this
 //todo ask @Systerr the reason of variable 'prefix'
-(function (sf) {
-    var notFound = [];
+var notFound = [];
 
-    /**
-     *
-     * @param {HTMLElement} context
-     * @param {Object} names
-     * @param {Function} callback
-     * @param {String} [prefix]
-     */
-    function findNodes(context, names, callback, prefix) {
-        for (var name in names) {
-            if (!names.hasOwnProperty(name)) {
-                continue;
-            }
+/**
+ *
+ * @param {HTMLElement} context
+ * @param {Object} names
+ * @param {Function} callback
+ * @param {String} [prefix]
+ */
+function findNodes(context, names, callback, prefix) {
+    for (var name in names) {
+        if (!names.hasOwnProperty(name)) {
+            continue;
+        }
 
-            var partOfSelector = (prefix) ? prefix + "[" + name + "]" : name,
-                type = Object.prototype.toString.call(names[name]),
-                selector = "[name='" + partOfSelector + "']";
-            switch (type) {
-                case '[object Object]':
-                    findNodes(context, names[name], callback, partOfSelector);//call recursive
-                    break;
-                case '[object Array]':
-                    names[name].forEach(function (el) {
-                        "use strict";
-                        //TODO refactor this should call recursive
-                        var sel = "[name='" + partOfSelector + "[]']" + "[value='" + el + "']";
-                        var nodes = context.querySelectorAll(sel);
-                        if (nodes.length === 0) {
-                            console.warn(sel, " in Array not found");
-                            notFound.push(sel);
-                        }
-                        for (var i = 0, max = nodes.length; i < max; i++) {
-                            callback(nodes[i], true);
-                        }
-                    });
-                    break;
-                case '[object String]':
-                case '[object Number]':
-                    var nodes = context.querySelectorAll(selector);
+        var partOfSelector = (prefix) ? prefix + "[" + name + "]" : name,
+            type = Object.prototype.toString.call(names[name]),
+            selector = "[name='" + partOfSelector + "']";
+        switch (type) {
+            case '[object Object]':
+                findNodes(context, names[name], callback, partOfSelector);//call recursive
+                break;
+            case '[object Array]':
+                names[name].forEach(function (el) {
+                    "use strict";
+                    //TODO refactor this should call recursive
+                    var sel = "[name='" + partOfSelector + "[]']" + "[value='" + el + "']";
+                    var nodes = context.querySelectorAll(sel);
                     if (nodes.length === 0) {
-                        console.warn(selector, " not found");
-                        var obj = {};
-                        obj[partOfSelector] = names[name];
-                        notFound.push(obj);
+                        console.warn(sel, " in Array not found");
+                        notFound.push(sel);
                     }
                     for (var i = 0, max = nodes.length; i < max; i++) {
-                        callback(nodes[i], names[name]);
+                        callback(nodes[i], true);
                     }
-                    break;
+                });
+                break;
+            case '[object String]':
+            case '[object Number]':
+                var nodes = context.querySelectorAll(selector);
+                if (nodes.length === 0) {
+                    console.warn(selector, " not found");
+                    var obj = {};
+                    obj[partOfSelector] = names[name];
+                    notFound.push(obj);
+                }
+                for (var i = 0, max = nodes.length; i < max; i++) {
+                    callback(nodes[i], names[name]);
+                }
+                break;
 
-                default :
-                    console.error("unknown type -", type, " and message", names[name]);
-            }
+            default :
+                console.error("unknown type -", type, " and message", names[name]);
         }
     }
+}
 
-    /**
-     * @param {HTMLElement} context
-     * @param {Object} names
-     * @param {Function} callback
-     * @param {String} [prefix]
-     */
-    sf.modules.helpers.tools.iterateInputs = function (context, names, callback, prefix) {
-        notFound = [];
-        findNodes(context, names, callback, prefix);
-        if (notFound.length !== 0) {
-            console.log("Some element not found in form", notFound);
-        }
-        return notFound;
-    };
+/**
+ * @param {HTMLElement} context
+ * @param {Object} names
+ * @param {Function} callback
+ * @param {String} [prefix]
+ */
+var iterateInputs = function (context, names, callback, prefix) {
+    notFound = [];
+    findNodes(context, names, callback, prefix);
+    if (notFound.length !== 0) {
+        console.log("Some element not found in form", notFound);
+    }
+    return notFound;
+};
 
-})(sf);
-},{}],12:[function(require,module,exports){
+module.exports = iterateInputs;
+},{}],13:[function(require,module,exports){
 "use strict";
 //https://github.com/spiral/sf.js
 
@@ -1378,48 +1377,39 @@ module.exports = tools;
 require("./shim/console");
 require("./shim/Object.assign");
 
-var sf = {//Describe all modules to use it in plugins too.
-    modules: {
-        core: {
-            Ajax: require("./core/Ajax"),
-            BaseDOMConstructor: require("./core/BaseDOMConstructor"),
-            DomMutations:require("./core/DomMutations"),
-            Events: require("./core/Events"),
-            InstancesController: require("./core/InstancesController")
-        },
-        helpers: {
-            DOMEvents:require("./helpers/DOMEvents"),
-            domTools:require("./helpers/domTools"),
-            LikeFormData: require("./helpers/LikeFormData"),
-            tools: require("./helpers/tools")
-        }
-    }
-};
+var sf = require("./sf");
 
-sf.instancesController = new sf.modules.core.InstancesController(sf);
-sf.domMutation = new sf.modules.core.DomMutations(sf.instancesController);
+//todo delete this in future
+if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
+    window.sf = sf;
+}
 
-//create global ajax
-sf.ajax = new sf.modules.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
+sf.instancesController = new sf.core.InstancesController(sf);
+sf.domMutation = new sf.core.DomMutations(sf.instancesController);
+
+//Events system
+sf.events = new sf.core.Events();
+require("./core/events/baseEvents.js")(sf.events);
+
+//AJAX
+sf.ajax = new sf.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
     headers: {
         "X-CSRF-Token": window.csrfToken
     }
 } : null);
+require("./core/ajax/baseActions.js")(sf);
 
-if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid conflicts with other libs
-    window.sf = sf;
-}
+//Form
+sf.tools.iterateInputs = require("./helpers/tools/iterateInputs.js");
+sf.modules.helpers.tools.iterateInputs = sf.tools.iterateInputs;//todo remove
+require("./vendor/formToObject");
+require("./instances/form/Form.js");
+require("./instances/lock/Lock.js");
 
-require("./helpers/tools/iterateInputs.js"); //plugin is used in formMessages module to iterate form inputs
-require("./core/ajax/actions.js"); //plugin to perform actions from the server
-require("./vendor/formToObject"); //formToObject  for form
-require("./instances/form/Form.js"); //add form
-require("./instances/lock/Lock.js"); //add lock
-
-if(typeof exports === "object" && exports) {
+if (typeof exports === "object" && exports) {
     module.exports = sf;
 }
-},{"./core/Ajax":1,"./core/BaseDOMConstructor":2,"./core/DomMutations":3,"./core/Events":4,"./core/InstancesController":5,"./core/ajax/actions.js":6,"./helpers/DOMEvents":7,"./helpers/LikeFormData":8,"./helpers/domTools":9,"./helpers/tools":10,"./helpers/tools/iterateInputs.js":11,"./instances/form/Form.js":13,"./instances/lock/Lock.js":15,"./shim/Object.assign":16,"./shim/console":17,"./vendor/formToObject":18}],13:[function(require,module,exports){
+},{"./core/ajax/baseActions.js":6,"./core/events/baseEvents.js":7,"./helpers/tools/iterateInputs.js":12,"./instances/form/Form.js":14,"./instances/lock/Lock.js":16,"./sf":17,"./shim/Object.assign":18,"./shim/console":19,"./vendor/formToObject":20}],14:[function(require,module,exports){
 "use strict";
 
 (function(sf){
@@ -1760,9 +1750,10 @@ if(typeof exports === "object" && exports) {
     sf.instancesController.registerInstanceType(Form,"js-sf-form");
 
 })(sf);
-},{"./formMessages":14}],14:[function(require,module,exports){
+},{"./formMessages":15}],15:[function(require,module,exports){
 "use strict";
-
+var iterateInputs = require("../../helpers/tools/iterateInputs");
+var domTools = require("../../helpers/domTools");
 
 /**
  * Closes form's main message.
@@ -1818,14 +1809,14 @@ function showMessage(formOptions, message, type) {
  * Shows messages for inputs.
  * @param {Object} formOptions
  * @param {String} formOptions.messagesPosition
- * @param {Node} formOptions.context
+ * @param {HTMLElement} formOptions.context
  * @param {Object} messages
  * @param {String} [type]
  */
 function showMessages(formOptions, messages, type) {
     var parser = new DOMParser(),
-        notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
-            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groupSelector),
+        notFound = iterateInputs(formOptions.context, messages, function (el, message) {
+            var group = domTools.closest(el, formOptions.messagesOptions.groupSelector),
                 variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groupTemplate;
             if (!group) return;
             group.classList.add(type);
@@ -1942,7 +1933,7 @@ module.exports = {
 };
 
 
-},{}],15:[function(require,module,exports){
+},{"../../helpers/domTools":10,"../../helpers/tools/iterateInputs":12}],16:[function(require,module,exports){
 "use strict";
 
 (function(sf) {
@@ -2056,7 +2047,35 @@ module.exports = {
 
 })(sf);
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
+var core = {
+    Ajax: require("./core/Ajax"),
+    BaseDOMConstructor: require("./core/BaseDOMConstructor"),
+    DomMutations: require("./core/DomMutations"),
+    Events: require("./core/Events"),
+    InstancesController: require("./core/InstancesController")
+};
+
+var helpers = {
+    DOMEvents: require("./helpers/DOMEvents"),
+    domTools: require("./helpers/domTools"),
+    LikeFormData: require("./helpers/LikeFormData"),
+    tools: require("./helpers/tools")
+};
+
+var sf = {
+    core: core,
+    helpers: helpers,
+    tools: helpers.tools,
+    modules: {//todo remove this when removed in dependencies
+        'WILL_BE_DEPRECATED': true,
+        core: core,
+        helpers: helpers
+    }
+};
+
+module.exports = sf;
+},{"./core/Ajax":1,"./core/BaseDOMConstructor":2,"./core/DomMutations":3,"./core/Events":4,"./core/InstancesController":5,"./helpers/DOMEvents":8,"./helpers/LikeFormData":9,"./helpers/domTools":10,"./helpers/tools":11}],18:[function(require,module,exports){
 /**
  * Object.assign polyfill
  * https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
@@ -2084,7 +2103,7 @@ if (typeof Object.assign != 'function') {
         };
     })();
 }
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * Avoid `console` errors in browsers that lack a console.
  */
@@ -2110,7 +2129,7 @@ if (typeof Object.assign != 'function') {
     }
 }());
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*! github.com/serbanghita/formToObject.js 1.0.1  (c) 2013 Serban Ghita <serbanghita@gmail.com> @licence MIT */
 
 (function(){
@@ -2281,7 +2300,7 @@ if (typeof Object.assign != 'function') {
 
 })();
 
-},{}]},{},[12])
+},{}]},{},[13])
 
 
 //# sourceMappingURL=sf.js.map

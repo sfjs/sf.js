@@ -5,44 +5,35 @@
 require("./shim/console");
 require("./shim/Object.assign");
 
-var sf = {//Describe all modules to use it in plugins too.
-    modules: {
-        core: {
-            Ajax: require("./core/Ajax"),
-            BaseDOMConstructor: require("./core/BaseDOMConstructor"),
-            DomMutations:require("./core/DomMutations"),
-            Events: require("./core/Events"),
-            InstancesController: require("./core/InstancesController")
-        },
-        helpers: {
-            DOMEvents:require("./helpers/DOMEvents"),
-            domTools:require("./helpers/domTools"),
-            LikeFormData: require("./helpers/LikeFormData"),
-            tools: require("./helpers/tools")
-        }
-    }
-};
+var sf = require("./sf");
 
-sf.instancesController = new sf.modules.core.InstancesController(sf);
-sf.domMutation = new sf.modules.core.DomMutations(sf.instancesController);
+//todo delete this in future
+if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
+    window.sf = sf;
+}
 
-//create global ajax
-sf.ajax = new sf.modules.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
+sf.instancesController = new sf.core.InstancesController(sf);
+sf.domMutation = new sf.core.DomMutations(sf.instancesController);
+
+//Events system
+sf.events = new sf.core.Events();
+require("./core/events/baseEvents.js")(sf.events);
+
+//AJAX
+sf.ajax = new sf.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
     headers: {
         "X-CSRF-Token": window.csrfToken
     }
 } : null);
+require("./core/ajax/baseActions.js")(sf);
 
-if (!window.hasOwnProperty("sf")){//bind only if  window.sf is empty to avoid conflicts with other libs
-    window.sf = sf;
-}
+//Form
+sf.tools.iterateInputs = require("./helpers/tools/iterateInputs.js");
+sf.modules.helpers.tools.iterateInputs = sf.tools.iterateInputs;//todo remove
+require("./vendor/formToObject");
+require("./instances/form/Form.js");
+require("./instances/lock/Lock.js");
 
-require("./helpers/tools/iterateInputs.js"); //plugin is used in formMessages module to iterate form inputs
-require("./core/ajax/actions.js"); //plugin to perform actions from the server
-require("./vendor/formToObject"); //formToObject  for form
-require("./instances/form/Form.js"); //add form
-require("./instances/lock/Lock.js"); //add lock
-
-if(typeof exports === "object" && exports) {
+if (typeof exports === "object" && exports) {
     module.exports = sf;
 }

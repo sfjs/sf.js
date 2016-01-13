@@ -1,5 +1,6 @@
 "use strict";
-
+var iterateInputs = require("../../helpers/tools/iterateInputs");
+var domTools = require("../../helpers/domTools");
 
 /**
  * Closes form's main message.
@@ -55,14 +56,14 @@ function showMessage(formOptions, message, type) {
  * Shows messages for inputs.
  * @param {Object} formOptions
  * @param {String} formOptions.messagesPosition
- * @param {Node} formOptions.context
+ * @param {HTMLElement} formOptions.context
  * @param {Object} messages
  * @param {String} [type]
  */
 function showMessages(formOptions, messages, type) {
     var parser = new DOMParser(),
-        notFound = sf.modules.helpers.tools.iterateInputs(formOptions.context, messages, function (el, message) {
-            var group = sf.modules.helpers.domTools.closest(el, formOptions.messagesOptions.groupSelector),
+        notFound = iterateInputs(formOptions.context, messages, function (el, message) {
+            var group = domTools.closest(el, formOptions.messagesOptions.groupSelector),
                 variables = {message: message}, msgEl, tpl = formOptions.messagesOptions.groupTemplate;
             if (!group) return;
             group.classList.add(type);
