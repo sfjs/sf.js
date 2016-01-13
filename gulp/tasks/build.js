@@ -68,7 +68,7 @@ gulp.task('build', ['build-js', 'build-less']);
 
 
 gulp.task('build-less', function(){
-    return gulp.src('./src/index.less')
+    return gulp.src('./src/styles/index.less')
         .pipe(less())
         .pipe(rename('sf.css'))
         .pipe(gulp.dest('./dist'));

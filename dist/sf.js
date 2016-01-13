@@ -1481,31 +1481,9 @@ if(typeof exports === "object" && exports) {
         this.DOMEvents = new this.sf.modules.helpers.DOMEvents();
         this.addEvents();
 
-        this.events = new this.sf.modules.core.Events(["onBeforeSend", "onSuccess", "onError", "onAlways"]);
+        this.events = new this.sf.modules.core.Events(["beforeSend", "success", "error", "always"]);
     };
-    /**
-     * @override
-     * @inheritDoc
-     * @enum {Object}
-     */
-    Form.prototype.optionsToProcess = {
-        /**
-         * Link to form
-         */
-        "context": {
-            "processor": function (node,val) { //processor
-                return node;
-            }
-        },
-        /**
-         * Link to 'this'
-         */
-        self: {
-            "processor": function (node,val) {
-                return this;
-            }
-        }
-    };
+
     /**
      * @override
      * @inheritDoc
@@ -1638,117 +1616,6 @@ if(typeof exports === "object" && exports) {
     };
 
     /**
-     * @override
-     * @inheritDoc
-     * @enum {String}
-     */
-    Form.prototype.attributesToGrab = {//option to grab from forms
-        /**
-         * URL to send form (if ajax form) <b>Default: "/"</b>
-         */
-        "action": {
-            "key": "url",
-            "value": "/"
-        },
-        /**
-         * Method to send to send form (if ajax form) <b>Default: "POST"</b>
-         */
-        "method": {
-            "value": "POST"
-        },
-        /**
-         * Lock type when form sending <b>Default: "default"</b> @see sf.lock
-         */
-        "data-lockType": {
-            "value": "default",
-            "key": "lockType"
-        },
-        /**
-         *
-         */
-        "data-messagesType": {
-            "value": "spiral",
-            "key": "messagesType"
-        },
-        /**
-         * Pass custom template for form messages
-         * (groupSelector, groupTemplate, groupCloseSelector, formMessageTemplate, formMessageCloseSelector)
-         */
-        "data-messagesOptions": {
-            "key": "messagesOptions",
-            "processor": function (val) {
-                return JSON.parse(val);
-            }
-        },
-        /**
-         * Position for the message. bottom || top || selector <b>Default: "bottom"</b>
-         */
-        "data-messagePosition": {
-            "value": "bottom",
-            "key": "messagePosition"
-        },
-        /**
-         * Position of the inputs messages. bottom || top || selector <b>Default: "bottom"</b>
-         */
-        "data-messagesPosition": {
-            "value": "bottom",
-            "key": "messagesPosition"
-        },
-        /**
-         * Use ajax to submit form <b>Default: true</b>
-         */
-        "data-useAjax": {// attribute of form
-            "value": true, //default value
-            "key": "useAjax", // key to return
-            "processor": function (val, form) { // processor to process data before return
-                val = (val !== void 0 && val !== null) ? val.toLowerCase() : '';
-                if (val === 'false') {
-                    val = false;
-                } else if (val === 'true') {
-                    val = true;
-                } else {
-                    val = this.value;// default value available as this.value
-                }
-                return val;
-            }
-        },
-        /**
-         * Callback after form submitting <b>Default: false</b>
-         * <br/>
-         * <b> Example </b>
-         * function(options){
-     *  //options contains all options after send
-     * }
-         */
-        "data-callback": {// attribute of form
-            "value": false, //default value
-            "key": "ajaxCallback" // key to return
-        },
-        "data-before-submit": {// attribute of form
-            "value": false, //default value
-            "key": "beforeSubmitCallback" // key to return
-        },
-        "data-after-submit": {// attribute of form
-            "value": false, //default value
-            "key": "afterSubmitCallback" // key to return
-        },
-        "data-headers": {// attribute of form
-            "value": {"Accept": "application/json"}, //default value
-            "key": "headers", // key to return
-            "processor": function (val, node, self) {
-                if (val === void 0 || val == null) return this.value;
-                val = JSON.parse(val);
-                if (!val[Object.keys(this.value)[0]]) {
-                    return self.sf.modules.helpers.tools.extend(val, this.value)
-                } else {
-                    return val;
-                }
-            }
-        }
-    };
-
-
-    /**
      * Call on form submit
      * @param {Event} e submit event
      */
@@ -1768,7 +1635,7 @@ if(typeof exports === "object" && exports) {
         if (!window.FormData && this.options.context.querySelectorAll("input[type='file']").length !== 0) {
             this.options.useAjax = false;
         }
-        this.events.trigger("onBeforeSend", this.options);
+        this.events.trigger("beforeSend", this.options);
         //sf.events.performAction("beforeSubmit", this.options);
         //this.events.performAction("beforeSubmit", this.options);
 
@@ -1830,16 +1697,16 @@ if(typeof exports === "object" && exports) {
         }
         this.sf.ajax.send(sendOptions).then(
             function(answer){
-                that.events.trigger("onSuccess", sendOptions);
+                that.events.trigger("success", sendOptions);
                 return answer;
             },
             function(error){
-                that.events.trigger("onError", sendOptions);
+                that.events.trigger("error", sendOptions);
                 return error;
             }).then(function(answer){
                 that.lock(true);
                 that.processMessages(answer);
-                that.events.trigger("onAlways", sendOptions);
+                that.events.trigger("always", sendOptions);
             });
     };
 
