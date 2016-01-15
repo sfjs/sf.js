@@ -14,6 +14,10 @@ if (typeof sf !== 'undefined' && Object.prototype.toString.call(sf) === "[object
     _sf = require("./sf");
 }
 
+//todo delete this in future
+if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
+    window.sf = _sf;
+}
 
 _sf.instancesController = new _sf.core.InstancesController(sf);
 _sf.domMutation = new _sf.core.DomMutations(_sf.instancesController);
@@ -37,10 +41,6 @@ require("./vendor/formToObject");
 require("./instances/form/Form.js");
 require("./instances/lock/Lock.js");
 
-//todo delete this in future
-if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
-    window.sf = _sf;
-}
 
 if (typeof exports === "object" && exports) {
     module.exports = _sf;
