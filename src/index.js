@@ -5,35 +5,43 @@
 require("./shim/console");
 require("./shim/Object.assign");
 
-var sf = require("./sf");
+var _sf;
 
-//todo delete this in future
-if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
-    window.sf = sf;
+if (typeof sf !== 'undefined' && Object.prototype.toString.call(sf) === "[object Object]") {
+    //_sf = Object.assign(require("./sf"), sf);
+    _sf = Object.assign(sf, require("./sf"));
+} else {
+    _sf = require("./sf");
 }
 
-sf.instancesController = new sf.core.InstancesController(sf);
-sf.domMutation = new sf.core.DomMutations(sf.instancesController);
+
+_sf.instancesController = new _sf.core.InstancesController(sf);
+_sf.domMutation = new _sf.core.DomMutations(_sf.instancesController);
 
 //Events system
-sf.events = new sf.core.Events();
-require("./core/events/baseEvents.js")(sf.events);
+_sf.events = new _sf.core.Events();
+require("./core/events/baseEvents.js")(_sf.events);
 
 //AJAX
-sf.ajax = new sf.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
+_sf.ajax = new _sf.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
     headers: {
         "X-CSRF-Token": window.csrfToken
     }
 } : null);
-require("./core/ajax/baseActions.js")(sf);
+require("./core/ajax/baseActions.js")(_sf);
 
 //Form
-sf.tools.iterateInputs = require("./helpers/tools/iterateInputs.js");
-sf.modules.helpers.tools.iterateInputs = sf.tools.iterateInputs;//todo remove
+_sf.tools.iterateInputs = require("./helpers/tools/iterateInputs.js");
+_sf.modules.helpers.tools.iterateInputs = _sf.tools.iterateInputs;//todo remove
 require("./vendor/formToObject");
 require("./instances/form/Form.js");
 require("./instances/lock/Lock.js");
 
+//todo delete this in future
+if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
+    window.sf = _sf;
+}
+
 if (typeof exports === "object" && exports) {
-    module.exports = sf;
+    module.exports = _sf;
 }

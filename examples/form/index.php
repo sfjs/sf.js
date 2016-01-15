@@ -14,6 +14,17 @@ $msgOpts = [
             width: 480px;
         }
     </style>
+    <script>
+        var sf = {
+            options: {
+                instances: {
+                    form: {
+                        messagesType: "materialize"
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body>
 <div style="float: left; margin-right: 100px;">

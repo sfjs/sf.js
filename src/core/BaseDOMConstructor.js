@@ -26,6 +26,9 @@ BaseDOMConstructor.prototype.init = function (sf, node, options) {
     //TODO data-spiral-JSON
     this.sf = sf;
     this.node = node;
+    if (sf.options && sf.options.instances && sf.options.instances[this.name]) {
+        options = Object.assign(options || {}, sf.options.instances[this.name]);
+    }
     this.options = Object.assign(this.grabOptions(node), options);
 };
 
