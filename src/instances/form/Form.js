@@ -38,7 +38,7 @@
 
         var messagesOptions = {
                 groupSelector: '.item-form',
-                groupTemplate: '<span class="msg">${message}<button class="btn-close">×</button></span>',
+                groupTemplate: '<span class="msg" data->${message}<button class="btn-close">×</button></span>',
                 groupCloseSelector: '.btn-close',
                 formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
                 formMessageCloseSelector: '.btn-close'
@@ -117,25 +117,20 @@
          * Pass custom template for form messages
          * (groupSelector, groupTemplate, groupCloseSelector, formMessageTemplate, formMessageCloseSelector)
          */
-        "messagesOptions": {
-            "processor": function (node,val) {
-                return JSON.parse(val);
-            },
-            "domAttr": "data-messagesOptions"
-        },
-        /**
-         * Position for the message. bottom || top || selector <b>Default: "bottom"</b>
-         */
-        "messagePosition": {
-            "value": "bottom",
-            "domAttr": "data-messagePosition"
-        },
-        /**
-         * Position of the inputs messages. bottom || top || selector <b>Default: "bottom"</b>
-         */
-        "messagesPosition": {
-            "value": "bottom",
-            "domAttr": "data-messagesPosition"
+        "messages": {
+            "value": "",
+            "domAttr": "data-messages",
+            "processor": function (node,val, self) {
+                if (val === void 0 || val == null) return this.value;
+                if (typeof val == "string"){
+                    try {
+                        val = JSON.parse(val);
+                    }catch (e){
+                        console.error("Form JSON.parse error: ",e);
+                    }
+                }
+                return Object.assign(self.value, val);
+            }
         },
         /**
          * Use ajax to submit form <b>Default: true</b>
@@ -254,9 +249,11 @@
             return;
         }
         if (Object.prototype.toString.call(answer) === "[object Object]") {
-            formMessages.show(this.options, answer);
+            formMessages.show(this, answer);
+            //formMessages.show(this.options, answer);
         } else {
-            formMessages.clear(this.options);
+            formMessages.clear(this);
+            //formMessages.clear(this.options);
         }
     };
 
