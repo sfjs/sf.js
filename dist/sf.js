@@ -266,9 +266,9 @@ BaseDOMConstructor.prototype.init = function (sf, node, options) {
     //TODO data-spiral-JSON
     this.sf = sf;
     this.node = node;
-    if (sf.options && sf.options.instances && sf.options.instances[this.name]) {
-        options = Object.assign(options || {}, sf.options.instances[this.name]);
-    }
+    //if (sf.options && sf.options.instances && sf.options.instances[this.name]) {
+    //    options = Object.assign(options || {}, sf.options.instances[this.name]);
+    //}
     this.options = Object.assign(this.grabOptions(node), options);
 };
 
@@ -371,6 +371,10 @@ BaseDOMConstructor.prototype.grabOptions = function (node) {
             currentOption = this.optionsToGrab[option];
             if (currentOption.hasOwnProperty("value")) {//we have default option. Let's grab it for first
                 currentOptionValue = currentOption.value;
+            }
+
+            if (this.sf.options.instances[this.name] && this.sf.options.instances[this.name].hasOwnProperty(option)) {
+                currentOptionValue = this.sf.options.instances[this.name][option]
             }
 
             if (currentOption.hasOwnProperty("domAttr") && node.attributes.hasOwnProperty(currentOption.domAttr)) {//we can grab the attribute of node
@@ -1383,11 +1387,13 @@ require("./shim/Object.assign");
 var _sf;
 
 if (typeof sf !== 'undefined' && Object.prototype.toString.call(sf) === "[object Object]") {
-    //_sf = Object.assign(require("./sf"), sf);
     _sf = Object.assign(sf, require("./sf"));
 } else {
     _sf = require("./sf");
 }
+
+if (!_sf.hasOwnProperty('options')) _sf.options = {instances:{}};
+if (!_sf.options.hasOwnProperty('instances')) _sf.options.instances = {};
 
 //todo delete this in future
 if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
@@ -1415,7 +1421,6 @@ _sf.modules.helpers.tools.iterateInputs = _sf.tools.iterateInputs;//todo remove
 require("./vendor/formToObject");
 require("./instances/form/Form.js");
 require("./instances/lock/Lock.js");
-
 
 if (typeof exports === "object" && exports) {
     module.exports = _sf;

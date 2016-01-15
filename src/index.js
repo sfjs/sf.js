@@ -8,11 +8,13 @@ require("./shim/Object.assign");
 var _sf;
 
 if (typeof sf !== 'undefined' && Object.prototype.toString.call(sf) === "[object Object]") {
-    //_sf = Object.assign(require("./sf"), sf);
     _sf = Object.assign(sf, require("./sf"));
 } else {
     _sf = require("./sf");
 }
+
+if (!_sf.hasOwnProperty('options')) _sf.options = {instances:{}};
+if (!_sf.options.hasOwnProperty('instances')) _sf.options.instances = {};
 
 //todo delete this in future
 if (!window.hasOwnProperty("sf")) {//bind only if  window.sf is empty to avoid conflicts with other libs
@@ -40,7 +42,6 @@ _sf.modules.helpers.tools.iterateInputs = _sf.tools.iterateInputs;//todo remove
 require("./vendor/formToObject");
 require("./instances/form/Form.js");
 require("./instances/lock/Lock.js");
-
 
 if (typeof exports === "object" && exports) {
     module.exports = _sf;

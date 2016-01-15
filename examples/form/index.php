@@ -30,7 +30,7 @@ $msgOpts = [
 <div style="float: left; margin-right: 100px;">
 <h1>Error form</h1>
 
-<form class="js-sf-form" data-messagesOptions='<?= json_encode($msgOpts) ?>'  action="actionError.php">
+<form class="js-sf-form" data-messagesOptions='<?= json_encode($msgOpts) ?>'  data-messagesType="asdf" action="actionError.php">
     <label class="item-form">
         <span class="item-label">Input with error</span>
         <input type="text" name="inputError1" value="Input Value" class="item-input"/>
