@@ -487,14 +487,18 @@ table td.left-align {
   padding-bottom: 5px;
   font-weight: 100;
 }
-.error {
+.error,
+.danger {
   color: #fc6c6c;
 }
-.error .item-label {
+.error .item-label,
+.danger .item-label {
   color: #fc6c6c;
 }
 .error input,
-.error textarea {
+.danger input,
+.error textarea,
+.danger textarea {
   border-color: #fc6c6c;
 }
 .success {
@@ -536,7 +540,8 @@ table td.left-align {
   position: relative;
   margin-top: 10px;
 }
-.alert.error {
+.alert.error,
+.alert.danger {
   background: #fc6c6c;
 }
 .alert.success {

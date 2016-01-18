@@ -1768,25 +1768,28 @@ if (typeof exports === "object" && exports) {
 var iterateInputs = require("../../helpers/tools/iterateInputs");
 var domTools = require("../../helpers/domTools");
 
-var spiralOptions = {
+var essagesOptionsSpiral = {
     groupSelector: '.item-form',
-    groupTemplate: '<span class="msg" data->${message}<button class="btn-close">×</button></span>',
+    //field: '.item-form',
+    groupTemplate: '<span class="msg" data->${text}<button class="btn-close">×</button></span>',
+    //fieldTemplate: '<span class="msg" data->${text}<button class="btn-close">×</button></span>',
     groupCloseSelector: '.btn-close',
     messagesPosition: 'bottom',
 
-    formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
+    formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${text}</div></div>',
     formMessageCloseSelector: '.btn-close',
     messagePosition: 'bottom'
 };
 
-function mixOptions (form) {
+function mixOptions(form) {
     var globalOptions = form.sf.options.instances.form;
     return Object.assign(
-        spiralOptions,
+        essagesOptionsSpiral,
         globalOptions && globalOptions.messages && globalOptions.messages[form.options.messagesType],
         form.options.messages
     );
 }
+
 
 /**
  * Closes form's main message.
@@ -1803,36 +1806,58 @@ function closeMessage() {
 var _selector = '';
 var _options = {};
 
+var levels = {
+    success: "success", info: "info", warning: "warning", danger: "danger"
+};
+
+//often used alias
+levels.message = levels.success;
+
+//PSR-3 severity levels mapping (debug, info, notice, warning, error, critical, alert, emergency)
+//https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
+levels.debug = levels.success;
+levels.info = levels.notice = levels.info;
+levels.error = levels.critical = levels.alert = levels.emergency = levels.danger;
+
+function prepareMessageObject(message, type) {
+    if (Object.prototype.toString.call(message) !== "[object Object]") {
+        message = {text: message, type: type};
+    }
+    message.text = message.text || message.message || message;
+    message.type = message.type || type;
+    return message;
+}
+
 /**
  * Shows individual message for the form.
  * @param {Form} form
  * @param {HTMLElement} form.node
- * @param {String} type
- * @param {String} message
+ * @param {Object|String} message
+ * @param {String} [type]
  */
 function showMessage(form, message, type) {
-    var msg, parent,
-        variables = {message: message, type: type},
+    message = prepareMessageObject(message, type);
+
+    var msgEl, parent,
         tpl = _options.formMessageTemplate,
         parser = new DOMParser();
 
-    for (var item in variables) {
-        if (variables.hasOwnProperty(item)) {
-            tpl = tpl.replace('${' + item + '}', variables[item]);
-        }
+    for (var item in message) {
+        if (!message.hasOwnProperty(item)) return;
+        tpl = tpl.replace('${' + item + '}', message[item]);
     }
 
-    msg = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
+    msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
     if (_options.messagePosition === "bottom") {
-        form.node.appendChild(msg);
+        form.node.appendChild(msgEl);
     } else if (_options.messagePosition === "top") {
-        form.node.insertBefore(msg, form.node.firstChild);
+        form.node.insertBefore(msgEl, form.node.firstChild);
     } else {
         parent = document.querySelector(_options.messagePosition);
-        parent.appendChild(msg)
+        parent.appendChild(msgEl)
     }
-    var closeBtn = msg.querySelector(_options.formMessageCloseSelector);
+    var closeBtn = msgEl.querySelector(_options.formMessageCloseSelector);
     if (closeBtn) closeBtn.addEventListener("click", closeMessage);
 }
 
@@ -1846,15 +1871,15 @@ function showMessage(form, message, type) {
 function showMessages(form, messages, type) {
     var parser = new DOMParser(),
         notFound = iterateInputs(form.node, messages, function (el, message) {
-            var group = domTools.closest(el, _options.groupSelector),
-                variables = {message: message}, msgEl, tpl = _options.groupTemplate;
+            var group = domTools.closest(el, _options.groupSelector), msgEl, tpl = _options.groupTemplate;
             if (!group) return;
+            message = prepareMessageObject(message, type);
+
             group.classList.add(type);
 
-            for (var item in variables) {
-                if (variables.hasOwnProperty(item)) {
-                    tpl = tpl.replace('${' + item + '}', variables[item]);
-                }
+            for (var item in message) {
+                if (!message.hasOwnProperty(item)) return;
+                tpl = tpl.replace('${' + item + '}', message[item]);
             }
 
             msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
@@ -1876,58 +1901,33 @@ function showMessages(form, messages, type) {
             if (closeBtn) closeBtn.addEventListener("click", closeMessage);
         });
 
-    //todo data-sf-message for notFound
+    //todo data-name for notFound
 }
 
 
 module.exports = {
     /**
-     * Adds form's main message, input's messages, bootstrap-like classes has-... to form-groups.
-     * @constructor spiralMessages
      * @param {Form} form
      * @param {Object} answer
-     * @param {Object|String} [answer.message]
-     * @param {String} [answer.status]
-     * @param {String} [answer.statusText]
-     * @param {Object} [answer.data]
-     * @param {String} [answer.message.type]
-     * @param {String} [answer.message.text]
-     * @param {String} [answer.error]
-     * @param {String} [answer.warning]
-     * @param {Object} [answer.messages]
-     * @param {Object} [answer.errors]
-     * @param {Object} [answer.warnings]
      */
     show: function (form, answer) {
         if (!answer) return;
         var isMsg = false;
-
-        var globalOptions = form.sf.options.instances.form;
         _options = mixOptions(form);
-        console.log(_options);
 
-        //if (form.node.getElementsByClassName("alert").length > 0) {
-        //    this.clear(form);//todo we really need to clear here? form clears onSubmit
-        //}
+        for (var type in levels) {
+            if (answer[type]) {
+                showMessage(form, answer[type], levels[type]);
+                isMsg = true;
+            }
+        }
 
-        if (answer.message) {
-            showMessage(form, answer.message.text || answer.message, answer.message.type || "success");
-            isMsg = true;
-        }
-        if (answer.error) {
-            showMessage(form, answer.error, "error");
-            isMsg = true;
-        }
-        if (answer.warning) {
-            showMessage(form, answer.warning, "warning");
-            isMsg = true;
-        }
         if (answer.messages) {
             showMessages(form, answer.messages, "success");
             isMsg = true;
         }
         if (answer.errors) {
-            showMessages(form, answer.errors, "error");
+            showMessages(form, answer.errors, "danger");
             isMsg = true;
         }
         if (answer.warnings) {
@@ -1964,7 +1964,7 @@ module.exports = {
             for (i = 0, l = alerts.length; i < l; i++) {
                 item = alerts[i].parentNode;
                 item.removeChild(alerts[i]);
-                item.classList.remove("error", "success", "warning", "info");
+                item.classList.remove("error", "danger", "success", "warning", "info");
             }
         }
     }
