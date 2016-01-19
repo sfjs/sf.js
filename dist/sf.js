@@ -1627,7 +1627,7 @@ if (typeof exports === "object" && exports) {
             return;
         }
 
-        this.processMessages(true);
+        this.removeMessages();
 
         this.options.data = this.getFormData();
 
@@ -1668,22 +1668,34 @@ if (typeof exports === "object" && exports) {
         }
     };
 
-    /**
-     * Shows or clears messages (errors).
-     * @param {Object|Boolean} [answer]
-     */
-    Form.prototype.processMessages = function (answer) {
-        if (!this.options.messagesType) {
-            return;
-        }
-        if (Object.prototype.toString.call(answer) === "[object Object]") {
-            formMessages.show(this, answer);
-            //formMessages.show(this.options, answer);
-        } else {
-            formMessages.clear(this);
-            //formMessages.clear(this.options);
+
+    //Form messages
+    Form.prototype.showFormMessage = formMessages.showFormMessage;
+    Form.prototype.showFieldMessage = formMessages.showFieldMessage;
+    Form.prototype.showFieldsMessages = formMessages.showFieldsMessages;
+    Form.prototype.showMessages = formMessages.showMessages;
+    Form.prototype.removeMessages = formMessages.removeMessages;
+    Form.prototype.removeMessage = formMessages.removeMessage;
+
+    Form.prototype.processAnswer = function (answer) {
+        if (this.options.messagesType) {
+            this.showMessages(answer);
         }
     };
+
+    //Form.prototype.processMessages = function (answer) {
+    //    if (!this.options.messagesType) {
+    //        return;
+    //    }
+    //    if (Object.prototype.toString.call(answer) === "[object Object]") {
+    //        this.showMessages(this, answer);
+    //        //formMessages.show(this, answer);
+    //        //formMessages.show(this.options, answer);
+    //    } else {
+    //        formMessages.clear(this);
+    //        //formMessages.clear(this.options);
+    //    }
+    //};
 
     /**
      * Send form to server
@@ -1708,7 +1720,7 @@ if (typeof exports === "object" && exports) {
                 return error;
             }).then(function(answer){
                 that.lock(true);
-                that.processMessages(answer);
+                that.processAnswer(answer);
                 that.events.trigger("always", sendOptions);
             });
     };
@@ -1768,56 +1780,40 @@ if (typeof exports === "object" && exports) {
 var iterateInputs = require("../../helpers/tools/iterateInputs");
 var domTools = require("../../helpers/domTools");
 
-var essagesOptionsSpiral = {
-    groupSelector: '.item-form',
-    //field: '.item-form',
-    groupTemplate: '<span class="msg" data->${text}<button class="btn-close">×</button></span>',
-    //fieldTemplate: '<span class="msg" data->${text}<button class="btn-close">×</button></span>',
-    groupCloseSelector: '.btn-close',
-    messagesPosition: 'bottom',
-
-    formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${text}</div></div>',
-    formMessageCloseSelector: '.btn-close',
-    messagePosition: 'bottom'
+var options = {
+    template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${text}</div></div>',
+    close: '.btn-close',
+    place: 'bottom',
+    levels: {
+        success: "success", info: "info", warning: "warning", danger: "danger"
+    },
+    field: '.item-form',
+    fieldTemplate: '<span class="msg">${text}<button class="btn-close">×</button></span>',
+    fieldClose: '.btn-close',
+    fieldPlace: 'bottom',
+    fieldPrefix: ''//for bootstrap: class="has-danger"
 };
+
+//often used alias
+options.levels.message = options.levels.success;
+
+//other aliases
+//PSR-3 severity levels mapping (debug, info, notice, warning, error, critical, alert, emergency)
+//https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
+options.levels.debug = options.levels.success;
+options.levels.info = options.levels.notice = options.levels.info;
+options.levels.error = options.levels.critical = options.levels.alert = options.levels.emergency = options.levels.danger;
 
 function mixOptions(form) {
     var globalOptions = form.sf.options.instances.form;
     return Object.assign(
-        essagesOptionsSpiral,
+        options,
         globalOptions && globalOptions.messages && globalOptions.messages[form.options.messagesType],
         form.options.messages
     );
 }
 
-
-/**
- * Closes form's main message.
- */
-function closeMessage() {
-    this.removeEventListener("click", closeMessage);
-    var alert = this.parentNode;
-    alert.parentNode.removeChild(alert);
-}
-
-/**
- * Selector for group-messages
- */
-var _selector = '';
 var _options = {};
-
-var levels = {
-    success: "success", info: "info", warning: "warning", danger: "danger"
-};
-
-//often used alias
-levels.message = levels.success;
-
-//PSR-3 severity levels mapping (debug, info, notice, warning, error, critical, alert, emergency)
-//https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
-levels.debug = levels.success;
-levels.info = levels.notice = levels.info;
-levels.error = levels.critical = levels.alert = levels.emergency = levels.danger;
 
 function prepareMessageObject(message, type) {
     if (Object.prototype.toString.call(message) !== "[object Object]") {
@@ -1828,149 +1824,126 @@ function prepareMessageObject(message, type) {
     return message;
 }
 
-/**
- * Shows individual message for the form.
- * @param {Form} form
- * @param {HTMLElement} form.node
- * @param {Object|String} message
- * @param {String} [type]
- */
-function showMessage(form, message, type) {
-    message = prepareMessageObject(message, type);
-
-    var msgEl, parent,
-        tpl = _options.formMessageTemplate,
-        parser = new DOMParser();
-
-    for (var item in message) {
-        if (!message.hasOwnProperty(item)) return;
-        tpl = tpl.replace('${' + item + '}', message[item]);
-    }
-
-    msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
-
-    if (_options.messagePosition === "bottom") {
-        form.node.appendChild(msgEl);
-    } else if (_options.messagePosition === "top") {
-        form.node.insertBefore(msgEl, form.node.firstChild);
-    } else {
-        parent = document.querySelector(_options.messagePosition);
-        parent.appendChild(msgEl)
-    }
-    var closeBtn = msgEl.querySelector(_options.formMessageCloseSelector);
-    if (closeBtn) closeBtn.addEventListener("click", closeMessage);
-}
-
-/**
- * Shows messages for inputs.
- * @param {Form} form
- * @param {HTMLElement} form.node
- * @param {Object} messages
- * @param {String} [type]
- */
-function showMessages(form, messages, type) {
-    var parser = new DOMParser(),
-        notFound = iterateInputs(form.node, messages, function (el, message) {
-            var group = domTools.closest(el, _options.groupSelector), msgEl, tpl = _options.groupTemplate;
-            if (!group) return;
-            message = prepareMessageObject(message, type);
-
-            group.classList.add(type);
-
-            for (var item in message) {
-                if (!message.hasOwnProperty(item)) return;
-                tpl = tpl.replace('${' + item + '}', message[item]);
-            }
-
-            msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
-
-            if (!_selector) {
-                msgEl.className ? _selector = msgEl.className : _selector = 'sf-group-message';
-            }
-            msgEl.classList.add(_selector);
-
-            if (_options.messagesPosition === "bottom") {
-                group.appendChild(msgEl);
-            } else if (_options.messagesPosition === "top") {
-                group.insertBefore(msgEl, group.firstChild);
-            } else {
-                var parent = group.querySelector(_options.messagesPosition);
-                parent.appendChild(msgEl)
-            }
-            var closeBtn = msgEl.querySelector(_options.groupCloseSelector);
-            if (closeBtn) closeBtn.addEventListener("click", closeMessage);
-        });
-
-    //todo data-name for notFound
-}
-
-
 module.exports = {
-    /**
-     * @param {Form} form
-     * @param {Object} answer
-     */
-    show: function (form, answer) {
+    showMessages: function (answer) {
         if (!answer) return;
-        var isMsg = false;
-        _options = mixOptions(form);
+        var isMsg = false, that = this;
+        _options = mixOptions(this);
 
-        for (var type in levels) {
+        for (var type in options.levels) {
             if (answer[type]) {
-                showMessage(form, answer[type], levels[type]);
+                this.showFormMessage(answer[type], _options.levels[type]);
                 isMsg = true;
             }
         }
 
         if (answer.messages) {
-            showMessages(form, answer.messages, "success");
+            this.showFieldsMessages(answer.messages, "success");
             isMsg = true;
         }
         if (answer.errors) {
-            showMessages(form, answer.errors, "danger");
+            this.showFieldsMessages(answer.errors, "danger");
             isMsg = true;
         }
         if (answer.warnings) {
-            showMessages(form, answer.warnings, "warning");
+            this.showFieldsMessages(answer.warnings, "warning");
             isMsg = true;
         }
+
         if (!isMsg) {
             var error = answer.status ? answer.status + " " : "";
             error += answer.statusText ? answer.statusText : "";
             error += answer.data && !answer.statusText ? answer.data : "";
             error += error.length === 0 ? answer : "";
-            showMessage(form, error, "error");
+            this.showFormMessage(error, "error");
+        }
+
+        this._messages.forEach(function (m) {
+            if (m.close) {
+                m.closeHandler = that.removeMessage.bind(that, m);
+                m.close.addEventListener("click", m.closeHandler);
+            }
+        });
+    },
+    removeMessage: function (m, e) {
+        m.close && m.close.removeEventListener("click", m.closeHandler);
+        m.el.parentNode.removeChild(m.el);
+        m.field && m.field.classList.remove(_options.fieldPrefix + m.type);
+        if (e) {
+            e.preventDefault && e.preventDefault();
+            this._messages.splice(this._messages.indexOf(m), 1);
         }
     },
-    /**
-     * Removes form's main message, input's messages, bootstrap classes has-... from form-groups.
-     * @param {Form} form
-     * @param {HTMLElement} form.node
-     */
-    clear: function (form) {
-        var msg, i, l, item;
-        _options = mixOptions(form);
-        if (_options.messagePosition === "bottom" || _options.messagePosition === "top") {
-            msg = form.node.getElementsByClassName("form-msg")[0];
+    removeMessages: function () {
+        var that = this;
+        if (this._messages) {
+            this._messages.forEach(function (m) {
+                that.removeMessage(m, false);
+            });
+        }
+        that._messages = [];
+    },
+    showFormMessage: function (message, type) {
+        message = prepareMessageObject(message, type);
+
+        var msgEl, parent, tpl = _options.template, parser = new DOMParser();
+
+        for (var item in message) {
+            if (!message.hasOwnProperty(item)) return;
+            tpl = tpl.replace('${' + item + '}', message[item]);
+        }
+
+        msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
+
+        if (_options.place === "bottom") {
+            this.node.appendChild(msgEl);
+        } else if (_options.place === "top") {
+            this.node.insertBefore(msgEl, this.node.firstChild);
         } else {
-            msg = document.querySelector(_options.messagePosition + ">.form-msg");
+            parent = document.querySelector(_options.place);
+            parent.appendChild(msgEl)
         }
-        if (msg) {
-            msg.getElementsByClassName("btn-close")[0].removeEventListener("click", closeMessage);
-            msg.parentNode.removeChild(msg);
+        this._messages.push({el: msgEl, close: msgEl.querySelector(_options.close)});
+    },
+    showFieldMessage: function (el, message, type) {
+        var field = domTools.closest(el, _options.field), msgEl, tpl = _options.fieldTemplate;
+        if (!field) return;
+        var parser = new DOMParser();
+        message = prepareMessageObject(message, type);
+
+        field.classList.add(_options.fieldPrefix + type);
+
+        for (var item in message) {
+            if (!message.hasOwnProperty(item)) return;
+            tpl = tpl.replace('${' + item + '}', message[item]);
         }
-        if (_selector) { //if form wasn't sent at least 1 time => still doesn't have messages' selectors
-            var alerts = form.node.querySelectorAll(_options.groupSelector + ' .' + _selector);//Remove all messages
-            for (i = 0, l = alerts.length; i < l; i++) {
-                item = alerts[i].parentNode;
-                item.removeChild(alerts[i]);
-                item.classList.remove("error", "danger", "success", "warning", "info");
-            }
+
+        msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
+
+        if (_options.fieldPlace === "bottom") {
+            field.appendChild(msgEl);
+        } else if (_options.fieldPlace === "top") {
+            field.insertBefore(msgEl, field.firstChild);
+        } else {
+            field = field.querySelector(_options.fieldPlace);
+            field.appendChild(msgEl)
         }
+
+        this._messages.push({
+            el: msgEl,
+            close: msgEl.querySelector(_options.fieldClose),
+            field: field,
+            type: type
+        });
+    },
+    showFieldsMessages: function (messages, type) {
+        var that = this,
+            notFound = iterateInputs(this.node, messages, function (el, message) {
+                that.showFieldMessage(el, message, type)
+            });
+        //todo data-name for notFound
     }
 };
-
-
 },{"../../helpers/domTools":10,"../../helpers/tools/iterateInputs":12}],16:[function(require,module,exports){
 "use strict";
 

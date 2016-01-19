@@ -1,6 +1,6 @@
 <?
 $msgOpts = [
-    'groupTemplate' => '<span class="msg">${text}<button class="btn-close">Close</button></span>'
+    'fieldTemplate' => '<span class="msg">${text}<button class="btn-close">Close</button></span>'
 ];
 ?>
 <!DOCTYPE html>
@@ -22,12 +22,12 @@ $msgOpts = [
                         messagesType: "bootstrap",
                         messages: {
                             "materialize": {
-                                groupTemplate: '<span class="msg">${text}<button class="btn-close">materialize</button></span>',
-                                formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">materialize</button><div class="msg">${text}</div></div>'
+                                fieldTemplate: '<span class="msg">${text}<button class="btn-close">materialize</button></span>',
+                                template: '<div class="alert form-msg ${type}"><button class="btn-close">materialize</button><div class="msg">${text}</div></div>'
                             },
                             "bootstrap": {
-                                groupTemplate: '<span class="msg">${text}<button class="btn-close">bootstrap</button></span>',
-                                formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">bootstrap</button><div class="msg">${text}</div></div>'
+                                fieldTemplate: '<span class="msg">${text}<button class="btn-close">bootstrap</button></span>',
+                                template: '<div class="alert form-msg ${type}"><button class="btn-close">bootstrap</button><div class="msg">${text}</div></div>'
                             },
                             "spiral": {
 

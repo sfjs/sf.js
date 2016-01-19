@@ -199,7 +199,7 @@
             return;
         }
 
-        this.processMessages(true);
+        this.removeMessages();
 
         this.options.data = this.getFormData();
 
@@ -240,22 +240,34 @@
         }
     };
 
-    /**
-     * Shows or clears messages (errors).
-     * @param {Object|Boolean} [answer]
-     */
-    Form.prototype.processMessages = function (answer) {
-        if (!this.options.messagesType) {
-            return;
-        }
-        if (Object.prototype.toString.call(answer) === "[object Object]") {
-            formMessages.show(this, answer);
-            //formMessages.show(this.options, answer);
-        } else {
-            formMessages.clear(this);
-            //formMessages.clear(this.options);
+
+    //Form messages
+    Form.prototype.showFormMessage = formMessages.showFormMessage;
+    Form.prototype.showFieldMessage = formMessages.showFieldMessage;
+    Form.prototype.showFieldsMessages = formMessages.showFieldsMessages;
+    Form.prototype.showMessages = formMessages.showMessages;
+    Form.prototype.removeMessages = formMessages.removeMessages;
+    Form.prototype.removeMessage = formMessages.removeMessage;
+
+    Form.prototype.processAnswer = function (answer) {
+        if (this.options.messagesType) {
+            this.showMessages(answer);
         }
     };
+
+    //Form.prototype.processMessages = function (answer) {
+    //    if (!this.options.messagesType) {
+    //        return;
+    //    }
+    //    if (Object.prototype.toString.call(answer) === "[object Object]") {
+    //        this.showMessages(this, answer);
+    //        //formMessages.show(this, answer);
+    //        //formMessages.show(this.options, answer);
+    //    } else {
+    //        formMessages.clear(this);
+    //        //formMessages.clear(this.options);
+    //    }
+    //};
 
     /**
      * Send form to server
@@ -280,7 +292,7 @@
                 return error;
             }).then(function(answer){
                 that.lock(true);
-                that.processMessages(answer);
+                that.processAnswer(answer);
                 that.events.trigger("always", sendOptions);
             });
     };
