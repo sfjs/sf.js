@@ -2,7 +2,7 @@
 var iterateInputs = require("../../helpers/tools/iterateInputs");
 var domTools = require("../../helpers/domTools");
 
-var options = {
+var defaults = {
     template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${text}</div></div>',
     close: '.btn-close',
     place: 'bottom',
@@ -17,25 +17,14 @@ var options = {
 };
 
 //often used alias
-options.levels.message = options.levels.success;
+defaults.levels.message = defaults.levels.success;
 
 //other aliases
 //PSR-3 severity levels mapping (debug, info, notice, warning, error, critical, alert, emergency)
 //https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
-options.levels.debug = options.levels.success;
-options.levels.info = options.levels.notice = options.levels.info;
-options.levels.error = options.levels.critical = options.levels.alert = options.levels.emergency = options.levels.danger;
-
-function mixOptions(form) {
-    var globalOptions = form.sf.options.instances.form;
-    return Object.assign(
-        options,
-        globalOptions && globalOptions.messages && globalOptions.messages[form.options.messagesType],
-        form.options.messages
-    );
-}
-
-var _options = {};
+defaults.levels.debug = defaults.levels.success;
+defaults.levels.info = defaults.levels.notice = defaults.levels.info;
+defaults.levels.error = defaults.levels.critical = defaults.levels.alert = defaults.levels.emergency = defaults.levels.danger;
 
 function prepareMessageObject(message, type) {
     if (Object.prototype.toString.call(message) !== "[object Object]") {
@@ -47,14 +36,14 @@ function prepareMessageObject(message, type) {
 }
 
 module.exports = {
+    defaults: defaults,
     showMessages: function (answer) {
         if (!answer) return;
         var isMsg = false, that = this;
-        _options = mixOptions(this);
 
-        for (var type in options.levels) {
+        for (var type in this.options.messages.levels) {
             if (answer[type]) {
-                this.showFormMessage(answer[type], _options.levels[type]);
+                this.showFormMessage(answer[type], this.options.messages.levels[type]);
                 isMsg = true;
             }
         }
@@ -90,7 +79,7 @@ module.exports = {
     removeMessage: function (m, e) {
         m.close && m.close.removeEventListener("click", m.closeHandler);
         m.el.parentNode.removeChild(m.el);
-        m.field && m.field.classList.remove(_options.fieldPrefix + m.type);
+        m.field && m.field.classList.remove(this.options.messages.fieldPrefix + m.type);
         if (e) {
             e.preventDefault && e.preventDefault();
             this._messages.splice(this._messages.indexOf(m), 1);
@@ -108,7 +97,7 @@ module.exports = {
     showFormMessage: function (message, type) {
         message = prepareMessageObject(message, type);
 
-        var msgEl, parent, tpl = _options.template, parser = new DOMParser();
+        var msgEl, parent, tpl = this.options.messages.template, parser = new DOMParser();
 
         for (var item in message) {
             if (!message.hasOwnProperty(item)) return;
@@ -117,23 +106,23 @@ module.exports = {
 
         msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
-        if (_options.place === "bottom") {
+        if (this.options.messages.place === "bottom") {
             this.node.appendChild(msgEl);
-        } else if (_options.place === "top") {
+        } else if (this.options.messages.place === "top") {
             this.node.insertBefore(msgEl, this.node.firstChild);
         } else {
-            parent = document.querySelector(_options.place);
+            parent = document.querySelector(this.options.messages.place);
             parent.appendChild(msgEl)
         }
-        this._messages.push({el: msgEl, close: msgEl.querySelector(_options.close)});
+        this._messages.push({el: msgEl, close: msgEl.querySelector(this.options.messages.close)});
     },
     showFieldMessage: function (el, message, type) {
-        var field = domTools.closest(el, _options.field), msgEl, tpl = _options.fieldTemplate;
+        var field = domTools.closest(el, this.options.messages.field), msgEl, tpl = this.options.messages.fieldTemplate;
         if (!field) return;
         var parser = new DOMParser();
         message = prepareMessageObject(message, type);
 
-        field.classList.add(_options.fieldPrefix + type);
+        field.classList.add(this.options.messages.fieldPrefix + type);
 
         for (var item in message) {
             if (!message.hasOwnProperty(item)) return;
@@ -142,18 +131,18 @@ module.exports = {
 
         msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
-        if (_options.fieldPlace === "bottom") {
+        if (this.options.messages.fieldPlace === "bottom") {
             field.appendChild(msgEl);
-        } else if (_options.fieldPlace === "top") {
+        } else if (this.options.messages.fieldPlace === "top") {
             field.insertBefore(msgEl, field.firstChild);
         } else {
-            field = field.querySelector(_options.fieldPlace);
+            field = field.querySelector(this.options.messages.fieldPlace);
             field.appendChild(msgEl)
         }
 
         this._messages.push({
             el: msgEl,
-            close: msgEl.querySelector(_options.fieldClose),
+            close: msgEl.querySelector(this.options.messages.fieldClose),
             field: field,
             type: type
         });

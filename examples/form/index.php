@@ -26,8 +26,8 @@ $msgOpts = [
                                 template: '<div class="alert form-msg ${type}"><button class="btn-close">materialize</button><div class="msg">${text}</div></div>'
                             },
                             "bootstrap": {
-                                fieldTemplate: '<span class="msg">${text}<button class="btn-close">bootstrap</button></span>',
-                                template: '<div class="alert form-msg ${type}"><button class="btn-close">bootstrap</button><div class="msg">${text}</div></div>'
+                                fieldTemplate: '<span class="msg">${text}<button class="btn-close">b field close</button></span>',
+                                template: '<div class="alert form-msg ${type}"><button class="btn-close">b msg close</button><div class="msg">${text}</div></div>'
                             },
                             "spiral": {
 

@@ -1428,7 +1428,7 @@ if (typeof exports === "object" && exports) {
 },{"./core/ajax/baseActions.js":6,"./core/events/baseEvents.js":7,"./helpers/tools/iterateInputs.js":12,"./instances/form/Form.js":14,"./instances/lock/Lock.js":16,"./sf":17,"./shim/Object.assign":18,"./shim/console":19,"./vendor/formToObject":20}],14:[function(require,module,exports){
 "use strict";
 
-(function(sf){
+(function (sf) {
     var formMessages = require("./formMessages");
 
     /**
@@ -1462,23 +1462,11 @@ if (typeof exports === "object" && exports) {
      * @param {Object} [options] all options to override default
      * @private
      */
-    Form.prototype._construct = function(sf, node, options){
-
-        var messagesOptions = {
-                groupSelector: '.item-form',
-                groupTemplate: '<span class="msg" data->${message}<button class="btn-close">×</button></span>',
-                groupCloseSelector: '.btn-close',
-                formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
-                formMessageCloseSelector: '.btn-close'
-            };
-
+    Form.prototype._construct = function (sf, node, options) {
         this.init(sf, node, options);//call parent
+        this.mixMessagesOptions();
+        //this.options.fillFrom && this.fillFieldsFrom();//id required to fill form
 
-        //add default messagesOptions overwrited with grabbed ones from data-messagesOptions
-        this.options.messagesOptions = sf.modules.helpers.tools.extend(messagesOptions, this.options.messagesOptions || {});
-        if (this.options.fillFrom) {//id required to fill form
-            this.fillFieldsFrom();
-        }
         /**
          * @extends DOMEvents
          * @type {DOMEvents}
@@ -1501,7 +1489,7 @@ if (typeof exports === "object" && exports) {
          * Link to form
          */
         "context": {
-            "processor": function (node,val) { //processor
+            "processor": function (node, val) { //processor
                 return node;
             }
         },
@@ -1509,7 +1497,7 @@ if (typeof exports === "object" && exports) {
          * Link to 'this'
          */
         self: {
-            "processor": function (node,val) {
+            "processor": function (node, val) {
                 return this;
             }
         },
@@ -1543,18 +1531,17 @@ if (typeof exports === "object" && exports) {
         },
         /**
          * Pass custom template for form messages
-         * (groupSelector, groupTemplate, groupCloseSelector, formMessageTemplate, formMessageCloseSelector)
          */
         "messages": {
             "value": "",
             "domAttr": "data-messages",
-            "processor": function (node,val, self) {
+            "processor": function (node, val, self) {
                 if (val === void 0 || val == null) return this.value;
-                if (typeof val == "string"){
+                if (typeof val == "string") {
                     try {
                         val = JSON.parse(val);
-                    }catch (e){
-                        console.error("Form JSON.parse error: ",e);
+                    } catch (e) {
+                        console.error("Form JSON.parse error: ", e);
                     }
                 }
                 return Object.assign(self.value, val);
@@ -1566,8 +1553,8 @@ if (typeof exports === "object" && exports) {
         "useAjax": {// attribute of form
             "value": true, //default value
             "domAttr": "data-useAjax",
-            "processor": function (node,val) { // processor to process data before return
-                if (typeof val === "boolean"){
+            "processor": function (node, val) { // processor to process data before return
+                if (typeof val === "boolean") {
                     return val;
                 }
                 val = (val !== void 0 && val !== null) ? val.toLowerCase() : '';
@@ -1602,13 +1589,13 @@ if (typeof exports === "object" && exports) {
         "headers": {// attribute of form
             "value": {"Accept": "application/json"}, //default value
             "domAttr": "data-headers",
-            "processor": function (node,val, self) {
+            "processor": function (node, val, self) {
                 if (val === void 0 || val == null) return this.value;
-                if (typeof val == "string"){
+                if (typeof val == "string") {
                     try {
                         val = JSON.parse(val);
-                    }catch (e){
-                        console.error("Form JSON.parse error: ",e);
+                    } catch (e) {
+                        console.error("Form JSON.parse error: ", e);
                     }
                 }
                 return Object.assign(self.value, val);
@@ -1616,12 +1603,21 @@ if (typeof exports === "object" && exports) {
         }
     };
 
+    Form.prototype.mixMessagesOptions = function () {
+        var global = this.sf.options.instances.form;
+        Object.assign(this.options.messages,
+            formMessages.defaults,
+            global && global.messages && global.messages[this.options.messagesType],
+            this.options.messages
+        );
+    };
+
     /**
      * Call on form submit
      * @param {Event} e submit event
      */
     Form.prototype.onSubmit = function (e) {
-        if (this.sf.instancesController.getInstance('lock',this.node)){//on lock we should'n do any actions
+        if (this.sf.instancesController.getInstance('lock', this.node)) {//on lock we should'n do any actions
             e.preventDefault();
             e.stopPropagation();
             return;
@@ -1654,20 +1650,19 @@ if (typeof exports === "object" && exports) {
      * @param {Boolean} [remove]
      */
     Form.prototype.lock = function (remove) {
-        if (!this.options.lockType || this.options.lockType === 'none'){
+        if (!this.options.lockType || this.options.lockType === 'none') {
             return;
         }
-        if (remove){
-            if (!this.sf.instancesController.removeInstance("lock",this.node)){
+        if (remove) {
+            if (!this.sf.instancesController.removeInstance("lock", this.node)) {
                 console.warn("You try to remove 'lock' instance, but it is not available or not started");
             }
         } else {
-            if (!this.sf.instancesController.addInstance("lock",this.node,{type:this.options.lockType})){
+            if (!this.sf.instancesController.addInstance("lock", this.node, {type: this.options.lockType})) {
                 console.warn("You try to add 'lock' instance, but it is not available or already started");
             }
         }
     };
-
 
     //Form messages
     Form.prototype.showFormMessage = formMessages.showFormMessage;
@@ -1678,24 +1673,8 @@ if (typeof exports === "object" && exports) {
     Form.prototype.removeMessage = formMessages.removeMessage;
 
     Form.prototype.processAnswer = function (answer) {
-        if (this.options.messagesType) {
-            this.showMessages(answer);
-        }
+        this.options.messagesType && this.showMessages(answer);
     };
-
-    //Form.prototype.processMessages = function (answer) {
-    //    if (!this.options.messagesType) {
-    //        return;
-    //    }
-    //    if (Object.prototype.toString.call(answer) === "[object Object]") {
-    //        this.showMessages(this, answer);
-    //        //formMessages.show(this, answer);
-    //        //formMessages.show(this.options, answer);
-    //    } else {
-    //        formMessages.clear(this);
-    //        //formMessages.clear(this.options);
-    //    }
-    //};
 
     /**
      * Send form to server
@@ -1711,18 +1690,18 @@ if (typeof exports === "object" && exports) {
             }
         }
         this.sf.ajax.send(sendOptions).then(
-            function(answer){
+            function (answer) {
                 that.events.trigger("success", sendOptions);
                 return answer;
             },
-            function(error){
+            function (error) {
                 that.events.trigger("error", sendOptions);
                 return error;
-            }).then(function(answer){
-                that.lock(true);
-                that.processAnswer(answer);
-                that.events.trigger("always", sendOptions);
-            });
+            }).then(function (answer) {
+            that.lock(true);
+            that.processAnswer(answer);
+            that.events.trigger("always", sendOptions);
+        });
     };
 
     /**
@@ -1772,7 +1751,7 @@ if (typeof exports === "object" && exports) {
     /**
      * Register form
      */
-    sf.instancesController.registerInstanceType(Form,"js-sf-form");
+    sf.instancesController.registerInstanceType(Form, "js-sf-form");
 
 })(sf);
 },{"./formMessages":15}],15:[function(require,module,exports){
@@ -1780,7 +1759,7 @@ if (typeof exports === "object" && exports) {
 var iterateInputs = require("../../helpers/tools/iterateInputs");
 var domTools = require("../../helpers/domTools");
 
-var options = {
+var defaults = {
     template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${text}</div></div>',
     close: '.btn-close',
     place: 'bottom',
@@ -1795,25 +1774,14 @@ var options = {
 };
 
 //often used alias
-options.levels.message = options.levels.success;
+defaults.levels.message = defaults.levels.success;
 
 //other aliases
 //PSR-3 severity levels mapping (debug, info, notice, warning, error, critical, alert, emergency)
 //https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
-options.levels.debug = options.levels.success;
-options.levels.info = options.levels.notice = options.levels.info;
-options.levels.error = options.levels.critical = options.levels.alert = options.levels.emergency = options.levels.danger;
-
-function mixOptions(form) {
-    var globalOptions = form.sf.options.instances.form;
-    return Object.assign(
-        options,
-        globalOptions && globalOptions.messages && globalOptions.messages[form.options.messagesType],
-        form.options.messages
-    );
-}
-
-var _options = {};
+defaults.levels.debug = defaults.levels.success;
+defaults.levels.info = defaults.levels.notice = defaults.levels.info;
+defaults.levels.error = defaults.levels.critical = defaults.levels.alert = defaults.levels.emergency = defaults.levels.danger;
 
 function prepareMessageObject(message, type) {
     if (Object.prototype.toString.call(message) !== "[object Object]") {
@@ -1825,14 +1793,14 @@ function prepareMessageObject(message, type) {
 }
 
 module.exports = {
+    defaults: defaults,
     showMessages: function (answer) {
         if (!answer) return;
         var isMsg = false, that = this;
-        _options = mixOptions(this);
 
-        for (var type in options.levels) {
+        for (var type in this.options.messages.levels) {
             if (answer[type]) {
-                this.showFormMessage(answer[type], _options.levels[type]);
+                this.showFormMessage(answer[type], this.options.messages.levels[type]);
                 isMsg = true;
             }
         }
@@ -1868,7 +1836,7 @@ module.exports = {
     removeMessage: function (m, e) {
         m.close && m.close.removeEventListener("click", m.closeHandler);
         m.el.parentNode.removeChild(m.el);
-        m.field && m.field.classList.remove(_options.fieldPrefix + m.type);
+        m.field && m.field.classList.remove(this.options.messages.fieldPrefix + m.type);
         if (e) {
             e.preventDefault && e.preventDefault();
             this._messages.splice(this._messages.indexOf(m), 1);
@@ -1886,7 +1854,7 @@ module.exports = {
     showFormMessage: function (message, type) {
         message = prepareMessageObject(message, type);
 
-        var msgEl, parent, tpl = _options.template, parser = new DOMParser();
+        var msgEl, parent, tpl = this.options.messages.template, parser = new DOMParser();
 
         for (var item in message) {
             if (!message.hasOwnProperty(item)) return;
@@ -1895,23 +1863,23 @@ module.exports = {
 
         msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
-        if (_options.place === "bottom") {
+        if (this.options.messages.place === "bottom") {
             this.node.appendChild(msgEl);
-        } else if (_options.place === "top") {
+        } else if (this.options.messages.place === "top") {
             this.node.insertBefore(msgEl, this.node.firstChild);
         } else {
-            parent = document.querySelector(_options.place);
+            parent = document.querySelector(this.options.messages.place);
             parent.appendChild(msgEl)
         }
-        this._messages.push({el: msgEl, close: msgEl.querySelector(_options.close)});
+        this._messages.push({el: msgEl, close: msgEl.querySelector(this.options.messages.close)});
     },
     showFieldMessage: function (el, message, type) {
-        var field = domTools.closest(el, _options.field), msgEl, tpl = _options.fieldTemplate;
+        var field = domTools.closest(el, this.options.messages.field), msgEl, tpl = this.options.messages.fieldTemplate;
         if (!field) return;
         var parser = new DOMParser();
         message = prepareMessageObject(message, type);
 
-        field.classList.add(_options.fieldPrefix + type);
+        field.classList.add(this.options.messages.fieldPrefix + type);
 
         for (var item in message) {
             if (!message.hasOwnProperty(item)) return;
@@ -1920,18 +1888,18 @@ module.exports = {
 
         msgEl = parser.parseFromString(tpl, "text/html").firstChild.lastChild.firstChild;
 
-        if (_options.fieldPlace === "bottom") {
+        if (this.options.messages.fieldPlace === "bottom") {
             field.appendChild(msgEl);
-        } else if (_options.fieldPlace === "top") {
+        } else if (this.options.messages.fieldPlace === "top") {
             field.insertBefore(msgEl, field.firstChild);
         } else {
-            field = field.querySelector(_options.fieldPlace);
+            field = field.querySelector(this.options.messages.fieldPlace);
             field.appendChild(msgEl)
         }
 
         this._messages.push({
             el: msgEl,
-            close: msgEl.querySelector(_options.fieldClose),
+            close: msgEl.querySelector(this.options.messages.fieldClose),
             field: field,
             type: type
         });

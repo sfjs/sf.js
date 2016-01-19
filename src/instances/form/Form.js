@@ -1,6 +1,6 @@
 "use strict";
 
-(function(sf){
+(function (sf) {
     var formMessages = require("./formMessages");
 
     /**
@@ -34,23 +34,11 @@
      * @param {Object} [options] all options to override default
      * @private
      */
-    Form.prototype._construct = function(sf, node, options){
-
-        var messagesOptions = {
-                groupSelector: '.item-form',
-                groupTemplate: '<span class="msg" data->${message}<button class="btn-close">×</button></span>',
-                groupCloseSelector: '.btn-close',
-                formMessageTemplate: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${message}</div></div>',
-                formMessageCloseSelector: '.btn-close'
-            };
-
+    Form.prototype._construct = function (sf, node, options) {
         this.init(sf, node, options);//call parent
+        this.mixMessagesOptions();
+        //this.options.fillFrom && this.fillFieldsFrom();//id required to fill form
 
-        //add default messagesOptions overwrited with grabbed ones from data-messagesOptions
-        this.options.messagesOptions = sf.modules.helpers.tools.extend(messagesOptions, this.options.messagesOptions || {});
-        if (this.options.fillFrom) {//id required to fill form
-            this.fillFieldsFrom();
-        }
         /**
          * @extends DOMEvents
          * @type {DOMEvents}
@@ -73,7 +61,7 @@
          * Link to form
          */
         "context": {
-            "processor": function (node,val) { //processor
+            "processor": function (node, val) { //processor
                 return node;
             }
         },
@@ -81,7 +69,7 @@
          * Link to 'this'
          */
         self: {
-            "processor": function (node,val) {
+            "processor": function (node, val) {
                 return this;
             }
         },
@@ -115,18 +103,17 @@
         },
         /**
          * Pass custom template for form messages
-         * (groupSelector, groupTemplate, groupCloseSelector, formMessageTemplate, formMessageCloseSelector)
          */
         "messages": {
             "value": "",
             "domAttr": "data-messages",
-            "processor": function (node,val, self) {
+            "processor": function (node, val, self) {
                 if (val === void 0 || val == null) return this.value;
-                if (typeof val == "string"){
+                if (typeof val == "string") {
                     try {
                         val = JSON.parse(val);
-                    }catch (e){
-                        console.error("Form JSON.parse error: ",e);
+                    } catch (e) {
+                        console.error("Form JSON.parse error: ", e);
                     }
                 }
                 return Object.assign(self.value, val);
@@ -138,8 +125,8 @@
         "useAjax": {// attribute of form
             "value": true, //default value
             "domAttr": "data-useAjax",
-            "processor": function (node,val) { // processor to process data before return
-                if (typeof val === "boolean"){
+            "processor": function (node, val) { // processor to process data before return
+                if (typeof val === "boolean") {
                     return val;
                 }
                 val = (val !== void 0 && val !== null) ? val.toLowerCase() : '';
@@ -174,13 +161,13 @@
         "headers": {// attribute of form
             "value": {"Accept": "application/json"}, //default value
             "domAttr": "data-headers",
-            "processor": function (node,val, self) {
+            "processor": function (node, val, self) {
                 if (val === void 0 || val == null) return this.value;
-                if (typeof val == "string"){
+                if (typeof val == "string") {
                     try {
                         val = JSON.parse(val);
-                    }catch (e){
-                        console.error("Form JSON.parse error: ",e);
+                    } catch (e) {
+                        console.error("Form JSON.parse error: ", e);
                     }
                 }
                 return Object.assign(self.value, val);
@@ -188,12 +175,21 @@
         }
     };
 
+    Form.prototype.mixMessagesOptions = function () {
+        var global = this.sf.options.instances.form;
+        Object.assign(this.options.messages,
+            formMessages.defaults,
+            global && global.messages && global.messages[this.options.messagesType],
+            this.options.messages
+        );
+    };
+
     /**
      * Call on form submit
      * @param {Event} e submit event
      */
     Form.prototype.onSubmit = function (e) {
-        if (this.sf.instancesController.getInstance('lock',this.node)){//on lock we should'n do any actions
+        if (this.sf.instancesController.getInstance('lock', this.node)) {//on lock we should'n do any actions
             e.preventDefault();
             e.stopPropagation();
             return;
@@ -226,20 +222,19 @@
      * @param {Boolean} [remove]
      */
     Form.prototype.lock = function (remove) {
-        if (!this.options.lockType || this.options.lockType === 'none'){
+        if (!this.options.lockType || this.options.lockType === 'none') {
             return;
         }
-        if (remove){
-            if (!this.sf.instancesController.removeInstance("lock",this.node)){
+        if (remove) {
+            if (!this.sf.instancesController.removeInstance("lock", this.node)) {
                 console.warn("You try to remove 'lock' instance, but it is not available or not started");
             }
         } else {
-            if (!this.sf.instancesController.addInstance("lock",this.node,{type:this.options.lockType})){
+            if (!this.sf.instancesController.addInstance("lock", this.node, {type: this.options.lockType})) {
                 console.warn("You try to add 'lock' instance, but it is not available or already started");
             }
         }
     };
-
 
     //Form messages
     Form.prototype.showFormMessage = formMessages.showFormMessage;
@@ -250,24 +245,8 @@
     Form.prototype.removeMessage = formMessages.removeMessage;
 
     Form.prototype.processAnswer = function (answer) {
-        if (this.options.messagesType) {
-            this.showMessages(answer);
-        }
+        this.options.messagesType && this.showMessages(answer);
     };
-
-    //Form.prototype.processMessages = function (answer) {
-    //    if (!this.options.messagesType) {
-    //        return;
-    //    }
-    //    if (Object.prototype.toString.call(answer) === "[object Object]") {
-    //        this.showMessages(this, answer);
-    //        //formMessages.show(this, answer);
-    //        //formMessages.show(this.options, answer);
-    //    } else {
-    //        formMessages.clear(this);
-    //        //formMessages.clear(this.options);
-    //    }
-    //};
 
     /**
      * Send form to server
@@ -283,18 +262,18 @@
             }
         }
         this.sf.ajax.send(sendOptions).then(
-            function(answer){
+            function (answer) {
                 that.events.trigger("success", sendOptions);
                 return answer;
             },
-            function(error){
+            function (error) {
                 that.events.trigger("error", sendOptions);
                 return error;
-            }).then(function(answer){
-                that.lock(true);
-                that.processAnswer(answer);
-                that.events.trigger("always", sendOptions);
-            });
+            }).then(function (answer) {
+            that.lock(true);
+            that.processAnswer(answer);
+            that.events.trigger("always", sendOptions);
+        });
     };
 
     /**
@@ -344,6 +323,6 @@
     /**
      * Register form
      */
-    sf.instancesController.registerInstanceType(Form,"js-sf-form");
+    sf.instancesController.registerInstanceType(Form, "js-sf-form");
 
 })(sf);
