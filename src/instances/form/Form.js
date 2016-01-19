@@ -108,7 +108,7 @@
             "value": "",
             "domAttr": "data-messages",
             "processor": function (node, val, self) {
-                if (val === void 0 || val == null) return this.value;
+                if (!val) return this.value;
                 if (typeof val == "string") {
                     try {
                         val = JSON.parse(val);
@@ -177,7 +177,7 @@
 
     Form.prototype.mixMessagesOptions = function () {
         var global = this.sf.options.instances.form;
-        Object.assign(this.options.messages,
+        this.options.messages = Object.assign({},
             formMessages.defaults,
             global && global.messages && global.messages[this.options.messagesType],
             this.options.messages
