@@ -1,6 +1,6 @@
 <?
 $msgOpts = [
-    'fieldTemplate' => '<span class="msg">${text}<button class="btn-close">Close</button></span>'
+    'fieldTemplate' => '<div class="alert form-msg ${type}"><p class="msg">Custom template: ${text}</p></div>'
 ];
 ?>
 <!DOCTYPE html>
@@ -22,12 +22,12 @@ $msgOpts = [
                         messagesType: "bootstrap",
                         messages: {
                             "materialize": {
-                                fieldTemplate: '<span class="msg">${text}<button class="btn-close">materialize</button></span>',
-                                template: '<div class="alert form-msg ${type}"><button class="btn-close">materialize</button><div class="msg">${text}</div></div>'
+                                fieldTemplate: '<div class="alert form-msg ${type}"><p class="msg">Materialize: ${text}</p></div>',
+                                template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><p class="msg">Materialize: ${text}</p></div>'
                             },
                             "bootstrap": {
-                                fieldTemplate: '<span class="msg">${text}<button class="btn-close">b field close</button></span>',
-                                template: '<div class="alert form-msg ${type}"><button class="btn-close">b msg close</button><div class="msg">${text}</div></div>'
+                                fieldTemplate: '<div class="alert form-msg ${type}"><p class="msg">Bootstrap: ${text}</p></div>',
+                                template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><p class="msg">Bootstrap: ${text}</p></div>'
                             },
                             "spiral": {
 
@@ -59,6 +59,27 @@ $msgOpts = [
     <button>Send</button>
 </form>
 </div>
+
+<div style="float: left; margin-right: 100px;">
+<h1>Error form 2</h1>
+
+<form class="js-sf-form"  action="actionError.php" data-messagesType="spiral">
+    <label class="item-form">
+        <span class="item-label">Input with error</span>
+        <input type="text" name="inputError1" value="Input Value" class="item-input"/>
+    </label>
+    <label class="item-form">
+        <span class="item-label">Correct input</span>
+        <input type="text" name="inputCorrect" value="Input Value" class="item-input"/>
+    </label>
+    <label class="item-form">
+        <span class="item-label">One more error</span>
+        <input type="text" name="inputError2" value="Input Value" class="item-input"/>
+    </label>
+    <button>Send</button>
+</form>
+</div>
+
 <div style="float: left;">
 <h1>Success form</h1>
 

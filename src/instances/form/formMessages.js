@@ -3,14 +3,14 @@ var iterateInputs = require("../../helpers/tools/iterateInputs");
 var domTools = require("../../helpers/domTools");
 
 var defaults = {
-    template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><div class="msg">${text}</div></div>',
+    template: '<div class="alert form-msg ${type}"><button class="btn-close">×</button><p class="msg">${text}</p></div>',
     close: '.btn-close',
     place: 'bottom',
     levels: {
-        success: "success", info: "info", warning: "warning", danger: "danger"
+        success: "success", info: "info", warning: "warning", error: "error"
     },
     field: '.item-form',
-    fieldTemplate: '<span class="msg">${text}<button class="btn-close">×</button></span>',
+    fieldTemplate: '<div class="alert form-msg ${type}"><p class="msg">${text}</p></div>',
     fieldClose: '.btn-close',
     fieldPlace: 'bottom',
     fieldPrefix: ''//for bootstrap: class="has-danger"
@@ -24,7 +24,7 @@ defaults.levels.message = defaults.levels.success;
 //https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
 defaults.levels.debug = defaults.levels.success;
 defaults.levels.info = defaults.levels.notice = defaults.levels.info;
-defaults.levels.error = defaults.levels.critical = defaults.levels.alert = defaults.levels.emergency = defaults.levels.danger;
+defaults.levels.danger = defaults.levels.critical = defaults.levels.alert = defaults.levels.emergency = defaults.levels.error;
 
 function prepareMessageObject(message, type) {
     if (Object.prototype.toString.call(message) !== "[object Object]") {
@@ -53,7 +53,7 @@ module.exports = {
             isMsg = true;
         }
         if (answer.errors) {
-            this.showFieldsMessages(answer.errors, "danger");
+            this.showFieldsMessages(answer.errors, "error");
             isMsg = true;
         }
         if (answer.warnings) {
