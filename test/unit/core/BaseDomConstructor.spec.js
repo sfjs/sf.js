@@ -3,23 +3,31 @@ var assert = chai.assert;
 var should = chai.should();
 var expect = chai.expect;
 
-window.sf = {
-    options: {
-        instances: {
-            testInstance: {
-                testSfOptions1: "NOT expected from sf.options",
-                testSfOptions2: "expected value from sf.options",
-                testSfOptions3: "NOT expected value from sf.options"
-            }
-        }
-    }
+if (!window.sf) {
+    window.sf = {};
+}
+
+if (!window.sf.options) {
+    window.sf.options = {};
+}
+
+if (!window.sf.options.instances) {
+    window.sf.options.instances = {};
+}
+
+
+window.sf.options.instances.testInstance = {
+    testSfOptions1: "NOT expected from sf.options",
+    testSfOptions2: "expected value from sf.options",
+    testSfOptions3: "NOT expected value from sf.options"
 };
+
 
 require("../../../src/index");
 
 
 /**
- * Lets create wen test instance for testing
+ * Lets create test instance for testing
  * @param spiral
  * @param node
  * @param options
@@ -28,7 +36,8 @@ require("../../../src/index");
 var TestInstance = function (spiral, node, options) {
     this.init(spiral, node, options);
 };
-TestInstance.prototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
+debugger;
+TestInstance.prototype = Object.create(sf.core.BaseDOMConstructor.prototype);
 TestInstance.prototype.name = "testInstance";
 TestInstance.prototype.optionsToGrab = {
     test1: {
@@ -44,15 +53,15 @@ TestInstance.prototype.optionsToGrab = {
     },
     test4: {
         domAttr: "someAttr",
-        processor: function (node,val,key) {
-            return val+"aaaa";
+        processor: function (node, val, key) {
+            return val + "aaaa";
 
         }
     },
     test5: {
         value: "bb",
-        processor: function (node,val,key) {
-            return val+"aaaa";
+        processor: function (node, val, key) {
+            return val + "aaaa";
 
         }
     },
@@ -75,7 +84,7 @@ describe('BaseDomConstructor', function () {
         var testDomNode = document.createElement("div");
         testDomNode.setAttribute("someAttr", "test");
 
-        var instanceOptions = new TestInstance(sf,testDomNode).options;
+        var instanceOptions = new TestInstance(sf, testDomNode).options;
 
         it('should return default option if node have no attr', function () {
             expect(instanceOptions).to.have.property('test1').with.equal("test1-value");
@@ -106,4 +115,3 @@ describe('BaseDomConstructor', function () {
     });
 
 });
-
