@@ -116,8 +116,15 @@ module.exports = {
         }
         this._messages.push({el: msgEl, close: msgEl.querySelector(this.options.messages.close)});
     },
-    showFieldMessage: function (el, message, type) {
-        var field = domTools.closest(el, this.options.messages.field), msgEl, tpl = this.options.messages.fieldTemplate;
+    /**
+     * @param {HTMLElement} el
+     * @param {String} message
+     * @param {String} type
+     * @param {Boolean} [isContainer]
+     */
+    showFieldMessage: function (el, message, type, isContainer) {
+        var field = isContainer ? el : domTools.closest(el, this.options.messages.field),
+            msgEl, tpl = this.options.messages.fieldTemplate;
         if (!field) return;
         var parser = new DOMParser();
         message = prepareMessageObject(message, type);
@@ -152,6 +159,15 @@ module.exports = {
             notFound = iterateInputs(this.node, messages, function (el, message) {
                 that.showFieldMessage(el, message, type)
             });
-        //todo data-name for notFound
+
+        notFound.forEach(function (msgObj) {
+            Object.keys(msgObj).forEach(function(name){
+                var container = that.node.querySelector('[data-message-placeholder="' + name + '"]');
+                if (container) {
+                    //todo check container.dataset.messageVariant? variants are "field" and "form"
+                    that.showFieldMessage(container, msgObj[name], type, true);
+                }
+            });
+        });
     }
 };

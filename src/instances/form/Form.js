@@ -60,8 +60,8 @@
         /**
          * Link to form
          */
-        "context": {
-            "processor": function (node, val) { //processor
+        context: {
+            processor: function (node, val) { //processor
                 return node;
             }
         },
@@ -69,45 +69,45 @@
          * Link to 'this'
          */
         self: {
-            "processor": function (node, val) {
+            processor: function (node, val) {
                 return this;
             }
         },
         /**
          * URL to send form (if ajax form) <b>Default: "/"</b>
          */
-        "url": {
-            "domAttr": "action",
-            "value": "/"
+        url: {
+            domAttr: "action",
+            value: "/"
         },
         /**
          * Method to send to send form (if ajax form) <b>Default: "POST"</b>
          */
-        "method": {
-            "domAttr": "method",
-            "value": "POST"
+        method: {
+            domAttr: "method",
+            value: "POST"
         },
         /**
          * Lock type when form sending <b>Default: "default"</b> @see sf.lock
          */
-        "lockType": {
-            "value": "default",
-            "domAttr": "data-lockType"
+        lockType: {
+            value: "default",
+            domAttr: "data-lockType"
         },
         /**
          *
          */
         "messagesType": {
-            "value": "spiral",
-            "domAttr": "data-messagesType"
+            value: "spiral",
+            domAttr: "data-messagesType"
         },
         /**
          * Pass custom template for form messages
          */
-        "messages": {
-            "value": "",
-            "domAttr": "data-messages",
-            "processor": function (node, val, self) {
+        messages: {
+            value: "",
+            domAttr: "data-messages",
+            processor: function (node, val, self) {
                 if (!val) return this.value;
                 if (typeof val == "string") {
                     try {
@@ -122,10 +122,10 @@
         /**
          * Use ajax to submit form <b>Default: true</b>
          */
-        "useAjax": {// attribute of form
-            "value": true, //default value
-            "domAttr": "data-useAjax",
-            "processor": function (node, val) { // processor to process data before return
+        useAjax: {// attribute of form
+            value: true, //default value
+            domAttr: "data-useAjax",
+            processor: function (node, val) { // processor to process data before return
                 if (typeof val === "boolean") {
                     return val;
                 }
@@ -146,22 +146,22 @@
      *  //options contains all options after send
      * }
          */
-        "ajaxCallback": {// attribute of form
-            "value": false, //default value
-            "domAttr": "data-callback"
+        ajaxCallback: {// attribute of form
+            value: false, //default value
+            domAttr: "data-callback"
         },
-        "beforeSubmitCallback": {// attribute of form
-            "value": false, //default value
-            "domAttr": "data-before-submit"
+        beforeSubmitCallback: {// attribute of form
+            value: false, //default value
+            domAttr: "data-before-submit"
         },
-        "afterSubmitCallback": {// attribute of form
-            "value": false, //default value
-            "domAttr": "data-after-submit"
+        afterSubmitCallback: {// attribute of form
+            value: false, //default value
+            domAttr: "data-after-submit"
         },
-        "headers": {// attribute of form
-            "value": {"Accept": "application/json"}, //default value
-            "domAttr": "data-headers",
-            "processor": function (node, val, self) {
+        headers: {// attribute of form
+            value: {"Accept": "application/json"}, //default value
+            domAttr: "data-headers",
+            processor: function (node, val, self) {
                 if (val === void 0 || val == null) return this.value;
                 if (typeof val == "string") {
                     try {

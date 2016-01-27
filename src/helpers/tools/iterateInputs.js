@@ -32,7 +32,6 @@ function findNodes(context, names, callback, prefix) {
                     var sel = "[name='" + partOfSelector + "[]']" + "[value='" + el + "']";
                     var nodes = context.querySelectorAll(sel);
                     if (nodes.length === 0) {
-                        console.warn(sel, " in Array not found");
                         notFound.push(sel);
                     }
                     for (var i = 0, max = nodes.length; i < max; i++) {
@@ -44,7 +43,6 @@ function findNodes(context, names, callback, prefix) {
             case '[object Number]':
                 var nodes = context.querySelectorAll(selector);
                 if (nodes.length === 0) {
-                    console.warn(selector, " not found");
                     var obj = {};
                     obj[partOfSelector] = names[name];
                     notFound.push(obj);
