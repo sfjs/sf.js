@@ -10,7 +10,7 @@ sf.js has been made to auto init javascript modules/components/plugins.
 Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationObserver)
 
 #Examples:
-##sf.js includes ajax-form module by default
+## sf.js includes ajax-form module by default
 ```html
     <script src="sf.min.js"></script>
     <form class="js-sf-form" action="/someAPI">
@@ -26,7 +26,7 @@ Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationO
     </form>
 ```
 
-##example for custorm module (image cropper library)
+## Custom module example (image cropper library)
 ```html
     <script src="sf.min.js"></script>
     <script src="crop.sf.js"></script>
