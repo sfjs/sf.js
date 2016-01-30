@@ -8,13 +8,17 @@ $msgOpts = [
 <head lang="en">
     <meta charset="UTF-8">
     <title>Demo example</title>
-    <link rel="stylesheet" href="../../dist/sf.css"/>
+    <link rel="stylesheet" href="/dist/sf.css"/>
     <style>
         .js-sf-form {
             width: 480px;
         }
     </style>
     <script>
+        function testFunction () {
+            console.log(arguments);
+            debugger
+        }
         var sf = {
             options: {
                 instances: {
@@ -98,6 +102,66 @@ $msgOpts = [
     </label>
     <button>Send</button>
 </form>
+</div>
+
+<div style="float: left; margin-right: 100px;">
+    <h1>Flash Info/Notice</h1>
+
+    <form class="js-sf-form" action="flashInfo.php" data-messagesType="materialize">
+        <label class="item-form">
+            <span class="item-label">Input </span>
+            <input type="text" name="input1" value="Input Value" class="item-input"/>
+        </label>
+        <label class="item-form">
+            <span class="item-label">One more input</span>
+            <input type="text" name="input2" value="Input Value" class="item-input"/>
+        </label>
+        <label class="item-form">
+            <span class="item-label">3rd input</span>
+            <input type="text" name="input3" value="Input Value" class="item-input"/>
+        </label>
+        <button>Send</button>
+    </form>
+</div>
+
+<div style="float: left; margin-right: 100px;">
+    <h1>Flash Debug/Success</h1>
+
+    <form class="js-sf-form" action="flashDebug.php" data-messagesType="materialize">
+        <label class="item-form">
+            <span class="item-label">Input </span>
+            <input type="text" name="input1" value="Input Value" class="item-input"/>
+        </label>
+        <label class="item-form">
+            <span class="item-label">One more input</span>
+            <input type="text" name="input2" value="Input Value" class="item-input"/>
+        </label>
+        <label class="item-form">
+            <span class="item-label">3rd input</span>
+            <input type="text" name="input3" value="Input Value" class="item-input"/>
+        </label>
+        <button>Send</button>
+    </form>
+</div>
+
+<div style="float: left;">
+    <h1>Flash Danger/Critical/Alert/Error/Emergency</h1>
+
+    <form class="js-sf-form" action="flashDanger.php" data-messagesType="materialize">
+        <label class="item-form">
+            <span class="item-label">Input </span>
+            <input type="text" name="input1" value="Input Value" class="item-input"/>
+        </label>
+        <label class="item-form">
+            <span class="item-label">One more input</span>
+            <input type="text" name="input2" value="Input Value" class="item-input"/>
+        </label>
+        <label class="item-form">
+            <span class="item-label">3rd input</span>
+            <input type="text" name="input3" value="Input Value" class="item-input"/>
+        </label>
+        <button>Send</button>
+    </form>
 </div>
 <script type="application/javascript" src="../../dist/sf.js"></script>
 

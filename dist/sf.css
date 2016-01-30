@@ -725,3 +725,42 @@ form {
   bottom: 0;
   left: 0;
 }
+.flash-wrapper {
+  position: fixed;
+  top: 40px;
+  right: -200px;
+  width: 200px;
+  height: 130px;
+  -webkit-transition-duration: 0.7s;
+  -moz-transition-duration: 0.7s;
+  -o-transition-duration: 0.7s;
+  transition-duration: 0.7s;
+  -webkit-border-radius: 0 0 5px 0;
+  -moz-border-radius: 0 0 5px 0;
+  border-radius: 0 0 5px 0;
+}
+.flash-wrapper.show {
+  right: 10px;
+}
+.flash-wrapper .flash {
+  color: #fff;
+  position: relative;
+  border-radius: 3px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  -webkit-transform: rotateX(0deg);
+  -moz-transform: rotateX(0deg);
+  -ms-transform: rotateX(0deg);
+  transform: rotateX(0deg);
+  opacity: 1;
+}
+.flash-wrapper .flash.info {
+  background: #86C6E4;
+}
+.flash-wrapper .flash.debug {
+  background: #83C34A;
+}
+.flash-wrapper .flash.danger {
+  background: #F44336;
+}
