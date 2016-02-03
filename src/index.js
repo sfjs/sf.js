@@ -36,11 +36,6 @@ _sf.ajax = new _sf.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
 } : null);
 require("./core/ajax/baseActions.js")(_sf);
 
-//Form
-_sf.tools.iterateInputs = require("./helpers/tools/iterateInputs.js");
-_sf.modules.helpers.tools.iterateInputs = _sf.tools.iterateInputs;//todo remove
-require("./vendor/formToObject");
-require("./instances/form/Form.js");
 require("./instances/lock/Lock.js");
 
 if (typeof exports === "object" && exports) {
