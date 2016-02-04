@@ -164,6 +164,7 @@ $msgOpts = [
     </form>
 </div>
 <script type="application/javascript" src="../../dist/sf.js"></script>
+<script type="application/javascript" src="./sf.form.js"></script>
 
 </body>
 </html>

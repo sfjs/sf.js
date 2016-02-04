@@ -149,6 +149,15 @@ InstancesController.prototype.getInstance = function (instanceName, node, isRetu
     }
     return ret;
 };
+/**
+ * Get instances. Return array of instances objects
+ * @param {String} instanceName - name of instance
+ * @returns {array|boolean}
+ */
+InstancesController.prototype.getInstances = function (instanceName) {
+    return this._storage.instances[instanceName] || false;
+};
+
 
 /**
  * Register addon for instance

@@ -790,6 +790,15 @@ InstancesController.prototype.getInstance = function (instanceName, node, isRetu
     }
     return ret;
 };
+/**
+ * Get instances. Return array of instances objects
+ * @param {String} instanceName - name of instance
+ * @returns {array|boolean}
+ */
+InstancesController.prototype.getInstances = function (instanceName) {
+    return this._storage.instances[instanceName] || false;
+};
+
 
 /**
  * Register addon for instance
@@ -1388,6 +1397,16 @@ _sf.ajax = new _sf.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
 require("./core/ajax/baseActions.js")(_sf);
 
 require("./instances/lock/Lock.js");
+
+//API
+_sf.modulePrototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
+_sf.registerInstanceType = _sf.instancesController.registerInstanceType.bind(_sf.instancesController);
+_sf.addInstance = _sf.instancesController.addInstance.bind(_sf.instancesController);
+_sf.removeInstance = _sf.instancesController.removeInstance.bind(_sf.instancesController);
+_sf.getInstance = _sf.instancesController.getInstance.bind(_sf.instancesController);
+_sf.getInstances = _sf.instancesController.getInstances.bind(_sf.instancesController);
+
+_sf.closest = sf.helpers.domTools.closest;
 
 if (typeof exports === "object" && exports) {
     module.exports = _sf;

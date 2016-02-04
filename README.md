@@ -9,6 +9,43 @@ sf.js has been made to auto init javascript modules/components/plugins.
 
 Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationObserver)
 
+## API
+### Instances
+
+-- **sf.modulePrototype** - creates prototype of new instance
+
+-- **sf.registerInstanceType(constructorFunction, cssClassName, isSkipInitialization)** - register new instance type
+ * @param {Function} constructorFunction - constructor function of instance
+ * @param {String} [cssClassName] - css class name of instance. If class not provided that it can't be automatically controlled by DomMutation. But you still can use it from JS.
+ * @param {Boolean} [isSkipInitialization=false]  - skip component initialization, just adding, no init nodes.
+
+-- **sf.addInstance(instanceName, node, options)** - add instance
+ * @param {String} instanceName - name of instance
+ * @param {Object} node - dom node
+ * @param {Object} [options] all options for send to the constructor
+ * @returns {boolean}
+ 
+-- **sf.removeInstance(instanceName, node)** - remove instance
+ * @param {String} instanceName - name of instance class
+ * @param {Object|String} node - dom node ID
+ * @returns {boolean}
+ 
+-- **sf.getInstance(instanceName, node)** - get instance. Return instance object of this dom node
+ * @param {String} instanceName - name of instance
+ * @param {Object|String} node - dom node o dome node ID
+ * @param {boolean} [isReturnObject] - return object or instance
+ * @returns {boolean}
+ 
+-- **sf.getInstances(instanceName)** - get instances. Return array of instances objects
+ * @param {String} instanceName - name of instance
+ * @returns {array|boolean}
+ 
+### Helpers
+-- **sf.closest(elem, selectors)** - found first parent node with matched selector(s)
+ * @param {Object} elem - dom node
+ * @param {String|Array} selectors - selector or array of selectors
+ * @returns {Object| Boolean} - node or false
+
 #Examples:
 ## sf.js includes ajax-form module by default
 ```html
