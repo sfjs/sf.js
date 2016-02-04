@@ -13,7 +13,7 @@
     /**
      * @lends Lock.prototype
      */
-    Lock.prototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
+    Lock.prototype = sf.modulePrototype;
 
     /**
      * Name of module
@@ -107,6 +107,6 @@
     /**
      * Register lock
      */
-    sf.instancesController.registerInstanceType(Lock);
+    sf.registerInstanceType(Lock);
 
 })(sf);

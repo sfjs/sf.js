@@ -36,8 +36,6 @@ _sf.ajax = new _sf.core.Ajax(window.csrfToken ? {//TODO move to spiral bindings
 } : null);
 require("./core/ajax/baseActions.js")(_sf);
 
-require("./instances/lock/Lock.js");
-
 //API
 _sf.modulePrototype = Object.create(sf.modules.core.BaseDOMConstructor.prototype);
 _sf.registerInstanceType = _sf.instancesController.registerInstanceType.bind(_sf.instancesController);
@@ -47,6 +45,8 @@ _sf.getInstance = _sf.instancesController.getInstance.bind(_sf.instancesControll
 _sf.getInstances = _sf.instancesController.getInstances.bind(_sf.instancesController);
 
 _sf.closest = sf.helpers.domTools.closest;
+
+require("./instances/lock/Lock.js");
 
 if (typeof exports === "object" && exports) {
     module.exports = _sf;
