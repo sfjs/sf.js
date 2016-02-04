@@ -12,7 +12,7 @@ Based on [DOM Mutations](https://developer.mozilla.org/en/docs/Web/API/MutationO
 ## API
 ### Instances
 
--- **sf.modulePrototype** - creates prototype of new instance
+-- **sf.createModulePrototype()** - creates prototype of new instance
 
 -- **sf.registerInstanceType(constructorFunction, cssClassName, isSkipInitialization)** - register new instance type
  * @param {Function} constructorFunction - constructor function of instance
