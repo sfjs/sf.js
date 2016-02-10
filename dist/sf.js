@@ -1217,9 +1217,10 @@ LikeFormData.prototype.has = function(key){
 
 /**
  * The difference between set() and FormData.append is that if the specified header does already exist, set() will overwrite the existing value with the new one, whereas FormData.append will append the new value onto the end of the set of values.
+ * @param key
  * @param val
  */
-LikeFormData.prototype.set = function(val){
+LikeFormData.prototype.set = function(key, val){
     this.data[key] = val;
 };
 
