@@ -7,36 +7,41 @@ var expect = chai.expect;
 require("../../../src/index");
 
 describe('helpers', function () {
+    var node = document.createElement('p'),
+        parentNode = document.createElement('div');
+    parentNode.classList.add('test-class');
+    parentNode.appendChild(node);
+    document.body.appendChild(parentNode);
     describe('#sf.helpers.domTools.closest()', function () {
-        it("returns node", function () {
-            var node = document.createElement('p'),
-                parentNode = document.createElement('div');
-            parentNode.appendChild(node);
-            document.body.appendChild(parentNode);
+        it("returns node if success", function () {
             var nodeToTest = sf.helpers.domTools.closest(node,'div');
             expect(nodeToTest).to.equals(parentNode)
-
+        });
+        it("returns false if failed", function () {
+            expect(sf.helpers.domTools.closest(node,'span')).to.be.false;
         });
     });
     describe('#sf.helpers.domTools.closestByClassName()', function () {
-        it("returns node", function () {
-            var node = document.createElement('p'),
-                parentNode = document.createElement('div');
-            parentNode.classList.add('test-class');
-            parentNode.appendChild(node);
-            document.body.appendChild(parentNode);
+        it("returns node if success", function () {
             var nodeToTest = sf.helpers.domTools.closestByClassName(node,'test-class');
             expect(nodeToTest).to.equals(parentNode)
-
+        });
+        it("returns false if failed", function () {
+            expect(sf.helpers.domTools.closestByClassName(node,'class')).to.be.false;
         });
     });
 });
 
 describe('LikeFormData', function () {
-    var formData;
+    var formData,
+        formDataWithoutObject;
     describe('#new LikeFormData()', function () {
         it("new LikeFormData() should return Object", function () {
             formData = new sf.helpers.LikeFormData({testKey:"testValue"});
+            expect(formData).be.a('object');
+        });
+        it("new LikeFormData() should return Object. data not object", function () {
+            formDataWithoutObject = new sf.helpers.LikeFormData("testValue");
             expect(formData).be.a('object');
         });
     });
