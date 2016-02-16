@@ -16,7 +16,7 @@ var Ajax = function (options) {
     this.events = new Events(["beforeSend", 'load']);
 
     if (options && options.headers) {
-        this.headers = tools.extend(this.headers, options.headers);
+        this.headers = Object.assign(this.headers, options.headers);
     }
 };
 
@@ -164,16 +164,6 @@ Ajax.prototype.send = function (options) {
     }
     return ajaxPromise;
 };
-
-
-/**
- * Please use send instead of sendRequest
- * @deprecated 3.0.0
- * @remove 3.1.0
- * //TODO remove in ver 3.1.0
- */
-Ajax.prototype.sendRequest = Ajax.prototype.send;
-
 
 /**
  * Iterate over headers object and call xhr.setRequestHeader
