@@ -53,7 +53,7 @@ Ajax.prototype.send = function (options) {
         options.method = "POST"
     }
 
-    options.headers = options.headers ? tools.extend(this.headers, options.headers) : this.headers;
+    options.headers = options.headers ? Object.assign(options.headers, this.headers, options.headers) : Object.assign({}, this.headers);
     var xhr;
     var ajaxPromise =  new Promise(function (resolve, reject) {    // Return a new promise.
         if (!options.url) {
