@@ -1,7 +1,7 @@
 #sf.js Spiral Frontend micro-framework (alpha)
 
-[![build Status](https://api.travis-ci.org/spiral/sf.js.svg)](https://travis-ci.org/spiral/sf.js)
-[![devDependency Status](https://david-dm.org/spiral/sf.js/dev-status.svg)](https://david-dm.org/spiral/sf.js#info=devDependencies)
+[![Build Status](https://travis-ci.org/sfjs/sf.js.svg?branch=master)](https://travis-ci.org/sfjs/sf.js)
+[![devDependency Status](https://david-dm.org/sfjs/sf.js/dev-status.svg)](https://david-dm.org/sfjs/sf.js#info=devDependencies)
 
 
 
