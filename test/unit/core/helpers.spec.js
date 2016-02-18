@@ -92,3 +92,53 @@ describe('LikeFormData', function () {
     });
 
 });
+
+describe('DOMEvents', function () {
+    var events,
+        node = document.createElement('div');
+    describe('#new sf.helpers.DOMEvents()', function () {
+        it("should return object with _DOMEventsStorage key", function () {
+            events = new sf.helpers.DOMEvents();
+            expect(events).be.a('object');
+            expect(events._DOMEventsStorage).to.exist;
+        });
+    });
+    describe('#add()', function () {
+        before(function(){
+            events.add([{
+                DOMNode: node,
+                eventType: "click",
+                eventFunction: function () {
+                    console.log("test1");
+                }
+            }]);
+            sinon.spy(console, 'log');
+        });
+        after(function () {
+            console.log.restore()
+        });
+        it("_DOMEventsStorage should contain event object", function () {
+            expect(events._DOMEventsStorage[0]).to.exist;
+        });
+        it("listener should work", function () {
+            node.click();
+            expect(console.log.withArgs("test1").calledOnce).to.be.true;
+        });
+    });
+    describe('#removeAll()', function () {
+        before(function(){
+            events.removeAll();
+            sinon.spy(console, 'log');
+        });
+        after(function () {
+            console.log.restore()
+        });
+        it("_DOMEventsStorage should not contain event object", function () {
+            expect(events._DOMEventsStorage[0]).to.not.exist;
+        });
+        it("listener shouldn't work", function () {
+            node.click();
+            expect(console.log.withArgs("test1").calledOnce).to.be.false;
+        });
+    });
+});
