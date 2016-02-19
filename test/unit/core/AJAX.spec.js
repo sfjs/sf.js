@@ -41,6 +41,7 @@ describe('AJAX', function () {
         sf.ajax.send({url:"/test5", data: {}}).then(function(){done()},function(error){done(error)});
         server.respond();
     });
+
     it("#sessionStorage sfFlashMessage should has data", function () {
         expect(JSON.parse(sessionStorage.getItem('sfFlashMessage')).message).to.equals('testFlashMessage')
     });
@@ -49,6 +50,46 @@ describe('AJAX', function () {
     });
     afterEach(function(){
         server.restore();
+    });
+
+});
+
+describe('AJAX base actions', function () {
+    var AJAXserver,
+        reload = {'action':'reload'},
+        redirect = {'action':{'redirect': '/test'}},
+        redirectName = {"action":{"name":"redirect","url":"/account"}};
+
+    sinon.stub(sf.events._storage.reload, [0]);
+    sinon.stub(sf.events._storage.redirect, [0]);
+    AJAXserver = sinon.fakeServer.create();
+    AJAXserver.respondWith("POST","/reload", [200, {"Content-Type":"application/json"}, JSON.stringify(reload)]);
+    AJAXserver.respondWith("POST","/redirect", [200, {"Content-Type":"application/json"}, JSON.stringify(redirect)]);
+    AJAXserver.respondWith("POST","/redirectName", [200, {"Content-Type":"application/json"}, JSON.stringify(redirectName)]);
+    sf.ajax.send({url:"/reload", data: {}});
+    AJAXserver.respond();
+    sf.ajax.send({url:"/redirect", data: {}});
+    AJAXserver.respond();
+    sf.ajax.send({url:"/redirectName", data: {}});
+    AJAXserver.respond();
+    describe("reload", function() {
+        it("#reload should be called after {'action':'reload'} answer", function () {
+            expect(sf.events._storage.reload[0].calledOnce).to.be.true;
+        });
+        after(function(){
+            sf.events._storage.reload[0].restore()
+        })
+    });
+    describe("redirect", function() {
+        it("#redirect should be called after {'action':{'redirect': '/test'}} &&  answer", function () {
+           expect(sf.events._storage.redirect[0].calledTwice).to.be.true;
+        });
+        after(function(){
+            sf.events._storage.redirect[0].restore()
+        })
+    });
+    afterEach(function(){
+        AJAXserver.restore();
     });
 
 });
