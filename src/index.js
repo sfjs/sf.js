@@ -4,6 +4,9 @@
 //Add console shim for old IE
 require("./shim/console");
 require("./shim/Object.assign");
+if (typeof Promise != 'function') {
+    var Promise = require('es6-promise').Promise;
+}
 
 var _sf;
 
