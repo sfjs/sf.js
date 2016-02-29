@@ -159,8 +159,9 @@ BaseDOMConstructor.prototype.grabOptions = function (node) {
  * @param {String} addonType type of addon (message,fill,etc)
  * @param {String} addonName name of addon
  */
-BaseDOMConstructor.prototype.getAddon = function (addonType, addonName) {
-    return this.spiral.instancesController.getInstanceAddon(this.name, addonType, addonName);
-};
+//depricated
+//BaseDOMConstructor.prototype.getAddon = function (addonType, addonName) {
+//    return this.spiral.instancesController.getInstanceAddon(this.name, addonType, addonName);
+//};
 
 module.exports = BaseDOMConstructor;

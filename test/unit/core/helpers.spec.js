@@ -141,4 +141,12 @@ describe('DOMEvents', function () {
             expect(console.log.withArgs("test1").calledOnce).to.be.false;
         });
     });
+    describe('#sf.resolveKeyPath()', function () {
+        it("function by path should fire", function () {
+            var test = 0;
+            window.a = {b: function(){test = 2}};
+            sf.resolveKeyPath('a.b')();
+            expect(test).to.equals(2);
+        });
+    });
 });
