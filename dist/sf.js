@@ -2346,7 +2346,11 @@ module.exports = {
  * @namespace
  */
 var tools = {
-
+    resolveKeyPath : function(path, obj, safe) {
+        return path.split('.').reduce(function(prev, curr) {
+            return !safe ? prev[curr] : (prev ? prev[curr] : void 0)
+        })
+    }
 };
 
 module.exports = tools;
@@ -2401,6 +2405,7 @@ _sf.getInstance = _sf.instancesController.getInstance.bind(_sf.instancesControll
 _sf.getInstances = _sf.instancesController.getInstances.bind(_sf.instancesController);
 
 _sf.closest = sf.helpers.domTools.closest;
+_sf.resolveKeyPath = sf.tools.resolveKeyPath;
 
 if (typeof exports === "object" && exports) {
     module.exports = _sf;

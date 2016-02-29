@@ -48,6 +48,7 @@ _sf.getInstance = _sf.instancesController.getInstance.bind(_sf.instancesControll
 _sf.getInstances = _sf.instancesController.getInstances.bind(_sf.instancesController);
 
 _sf.closest = sf.helpers.domTools.closest;
+_sf.resolveKeyPath = sf.tools.resolveKeyPath;
 
 if (typeof exports === "object" && exports) {
     module.exports = _sf;
