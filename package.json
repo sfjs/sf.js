@@ -8,7 +8,10 @@
     "url": "git+ssh://git@github.com/spiral/sf.js.git"
   },
   "scripts": {
-    "test": "./node_modules/.bin/karma start --browsers Firefox --single-run"
+    "test": "./node_modules/.bin/karma start --browsers Firefox --single-run",
+    "gulp": "gulp",
+    "build": "gulp build",
+    "prepublish": "npm run build"
   },
   "author": {
     "name": "Andrey Logunov",
