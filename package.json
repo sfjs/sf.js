@@ -1,8 +1,8 @@
 {
-  "name": "sf.js",
+  "name": "sf-core",
   "version": "0.3.6",
   "description": "Spiral Scout Frontend Framework",
-  "main": "index.js",
+  "main": "dist/sf.js",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/spiral/sf.js.git"
