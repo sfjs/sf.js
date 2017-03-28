@@ -8,7 +8,7 @@ const plugins = require('./webpack/plugins');
 module.exports = {
 
   entry: {
-      "sf": ['./src/sf.js']
+      "sf": ['./src/sf-wrapper.js']
   },
 
   output: {
@@ -16,7 +16,10 @@ module.exports = {
     filename: '[name].js',
     publicPath: '/',
     sourceMapFilename: '[name].js.map',
-    chunkFilename: '[id].chunk.js'
+    chunkFilename: '[id].chunk.js',
+    libraryTarget: "umd",
+    library: "sf-core",
+    umdNamedDefine: true
   },
 
   devtool: process.env.NODE_ENV === 'production' ?
