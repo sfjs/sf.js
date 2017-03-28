@@ -47,7 +47,7 @@ require("./core/ajax/baseActions.js")(sfWrapper);
 
 // API
 sfWrapper.createModulePrototype = function () {
-    return Object.create(sfWrapper.modules.core.BaseDOMConstructor.prototype);
+    return Object.create(sfWrapper.core.BaseDOMConstructor.prototype);
 };
 
 sfWrapper.registerInstanceType = sfWrapper.instancesController.registerInstanceType.bind(sfWrapper.instancesController);
