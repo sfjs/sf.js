@@ -8,7 +8,7 @@ const plugins = require('./webpack/plugins');
 module.exports = {
 
   entry: {
-      "sf": ['./src/sf-wrapper.js']
+      "sf": ['./src/sf.js']
   },
 
   output: {

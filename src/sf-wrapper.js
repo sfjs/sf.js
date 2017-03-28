@@ -36,7 +36,7 @@ sfWrapper.events = new sfWrapper.core.Events();
 require("./core/events/baseEvents.js")(sfWrapper.events);
 
 // AJAX
-sfWrapper.ajax = new sfWrapper.core.Ajax(window.csrfToken ? {
+sfWrapper.ajax = new sfWrapper.core.Ajax(window && window.csrfToken ? {
     // TODO move to spiral bindings
     headers: {
         "X-CSRF-Token": window.csrfToken
