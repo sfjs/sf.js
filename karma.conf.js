@@ -14,9 +14,9 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            {pattern: 'node_modules/chai/chai.js', include: true},//include chai library
-            {pattern: 'test/unit/**/*.spec.js', included: true}, //include tests
-            {pattern: 'src/sf-wrapper.js', included: true} //include sources. It's for coverage generation
+            {pattern: 'node_modules/chai/chai.js', include: true}, // include chai library
+            {pattern: 'test/unit/**/*.spec.js', included: true}, // include tests
+            {pattern: 'src/sf-wrapper.js', included: true} // include sources. It's for coverage generation
         ],
 
 
@@ -36,8 +36,6 @@ module.exports = function (config) {
             transform: ['browserify-istanbul']
         },
 
-
-
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
@@ -46,7 +44,7 @@ module.exports = function (config) {
         coverageReporter: {
             dir: "coverage/",
             reporters: [
-                { type: 'lcov', subdir: 'report-lcov' }
+                {type: 'lcov', subdir: 'report-lcov'}
             ]
         },
 
@@ -80,5 +78,5 @@ module.exports = function (config) {
         // Concurrency level
         // how many browser should be started simultaneous
         concurrency: Infinity
-    })
+    });
 };

@@ -4,7 +4,13 @@
  * Provides a spiral-specific sf bundle
  * TODO: This wrapping looks very fishy, why we need it? Move to toolkit may be?
  */
-var sfWrapper = require("./sf");
+var sf = require("./sf");
+
+var sfWrapper = {
+    core: sf.core,
+    helpers: sf.helpers,
+    tools: sf.tools
+};
 
 // Add console shim for old IE
 require("./shim/console");
@@ -18,7 +24,7 @@ if (!sfWrapper.hasOwnProperty('options')) sfWrapper.options = {instances: {}};
 if (!sfWrapper.options.hasOwnProperty('instances')) sfWrapper.options.instances = {};
 
 // TODO delete this in future
-if (!window.hasOwnProperty("sf")) {// bind only if  window.sf is empty to avoid conflicts with other libs
+if (window && !window.hasOwnProperty("sf")) {// bind only if  window.sf is empty to avoid conflicts with other libs
     window.sf = sfWrapper;
 }
 
