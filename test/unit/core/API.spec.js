@@ -1,16 +1,18 @@
 "use strict";
-var assert = chai.assert;
-var should = chai.should();
+// var assert = chai.assert;
+// var should = chai.should();
 var expect = chai.expect;
 
-
-require("../../../src/index");
+require("../../../src/sf-wrapper");
 
 var Module = function (sf, node, options) {
 };
+
 Module.prototype = sf.createModulePrototype();
 Module.prototype.name = "module";
-Module.prototype.die = function () {};
+Module.prototype.die = function () {
+};
+
 var testNode = document.createElement('div');
 testNode.classList.add('js-sf-module-class');
 document.body.appendChild(testNode);
@@ -29,12 +31,12 @@ describe('API', function () {
         it("it's a function", function () {
             expect(sf.registerInstanceType).be.a('function');
         });
-        sf.registerInstanceType(Module,"js-sf-module-class");
+        sf.registerInstanceType(Module, "js-sf-module-class");
         it("on called should register new instance", function () {
-            expect(window.sf.instancesController._storage.instances[Module.prototype.name])
+            expect(window.sf.instancesController._storage.instances[Module.prototype.name]);
         });
         it("new instance should be array", function () {
-            expect(window.sf.instancesController._storage.instances[Module.prototype.name]).be.a('array')
+            expect(window.sf.instancesController._storage.instances[Module.prototype.name]).be.a('array');
         });
         it("0.node element of array should equal testNode", function () {
             expect(window.sf.instancesController._storage.instances[Module.prototype.name][0].node).to.equal(testNode);
@@ -64,6 +66,5 @@ describe('API', function () {
             expect(window.sf.instancesController._storage.instances[Module.prototype.name][1]).to.be.undefined;
         });
     });
-    //console.log(sf.getInstance('module', testNode1))
-
+    // console.log(sf.getInstance('module', testNode1))
 });

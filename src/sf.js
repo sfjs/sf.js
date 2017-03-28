@@ -16,12 +16,7 @@ var helpers = {
 var sf = {
     core: core,
     helpers: helpers,
-    tools: helpers.tools,
-    modules: {//todo remove this when removed in dependencies
-        'WILL_BE_DEPRECATED': true,
-        core: core,
-        helpers: helpers
-    }
+    tools: helpers.tools
 };
 
 module.exports = sf;

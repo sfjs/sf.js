@@ -1,27 +1,27 @@
 "use strict";
-var assert = chai.assert;
-var should = chai.should();
+// var assert = chai.assert;
+// var should = chai.should();
 var expect = chai.expect;
 
 
-require("../../../src/index");
-
-
-
+require("../../../src/sf-wrapper");
 
 describe('Events', function () {
     it("it's a function", function () {
         expect(sf.core.Events).be.a('function');
     });
+
     it("on called with NEW should return new object", function () {
         var events = new sf.core.Events();
         expect(events).be.a('object');
     });
+
     it("on called WITHOUT NEW should return nothing", function () {
+        /* eslint-disable */
         var events = sf.core.Events();
+        /* eslint-enable */
         expect(events).to.not.exist;
     });
-
 
     describe('#on()', function () {
         it('should have method on', function () {
@@ -32,7 +32,6 @@ describe('Events', function () {
             var events = new sf.core.Events();
             expect(events.on).be.a('function');
         });
-
     });
 
     describe('#off()', function () {

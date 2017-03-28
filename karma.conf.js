@@ -16,7 +16,7 @@ module.exports = function (config) {
         files: [
             {pattern: 'node_modules/chai/chai.js', include: true},//include chai library
             {pattern: 'test/unit/**/*.spec.js', included: true}, //include tests
-            {pattern: 'src/index.js', included: true} //include sources. It's for coverage generation
+            {pattern: 'src/sf-wrapper.js', included: true} //include sources. It's for coverage generation
         ],
 
 
@@ -28,7 +28,7 @@ module.exports = function (config) {
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
             'test/unit/**/*.spec.js': ['browserify'],
-            'src/index.js': ['browserify']
+            'src/sf-wrapper.js': ['browserify']
         },
 
         browserify: {
@@ -69,7 +69,7 @@ module.exports = function (config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        //browsers: ['Chrome', 'Firefox', 'Opera', 'Safari', 'IE', 'ChromeCanary', 'PhantomJS'],
+        // browsers: ['Chrome', 'Firefox', 'Opera', 'Safari', 'IE', 'ChromeCanary', 'PhantomJS'],
         browsers: ['Chrome'],
 
 

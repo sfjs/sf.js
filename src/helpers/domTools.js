@@ -13,9 +13,10 @@ module.exports = {
 
     closest: function (elem, selectors) {
         selectors = (typeof selectors === 'string') ? [selectors] : selectors;
-        var key,
-            l = selectors.length,
-            matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+        var key;
+        var l = selectors.length;
+        var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+
         while (elem && elem.parentNode) {
             for (key = 0; key < l; key++) {
                 if (matchesSelector.call(elem, selectors[key])) {
@@ -37,9 +38,9 @@ module.exports = {
 
     closestByClassName: function (elem, className) {
         className = (typeof className === 'string') ? [className] : className;
-        var key,
-            l = className.length;
-        //,matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+        var key;
+        var l = className.length;
+
         while (elem && elem.parentNode) {
             for (key = 0; key < l; key++) {
                 var reg = new RegExp("(\\s|^)" + className[key] + "(\\s|$)");

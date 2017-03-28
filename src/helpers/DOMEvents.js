@@ -6,7 +6,7 @@
  * @TODO new method like addEventListener  DOMEvents.on(node(s),event,callback,useCapture);
  * @constructor
  */
-var DOMEvents = function(){
+var DOMEvents = function () {
     /**
      * Internal storage for events
      * @property {Array.<Object>} DOMEvents - dom events array
@@ -45,16 +45,17 @@ var DOMEvents = function(){
  * }
  *  DOMEventsInstance.add([eventOne,eventTwo]);
  */
-DOMEvents.prototype.add = function(eventArray){
-    if (Object.prototype.toString.call([]) !== "[object Array]"){
+DOMEvents.prototype.add = function (eventArray) {
+    if (Object.prototype.toString.call([]) !== "[object Array]") {
         eventArray = [eventArray];
     }
-    eventArray.forEach(function(val){
-        val.useCapture=!!(val.useCapture);
-        val.DOMNode.addEventListener(val.eventType,val.eventFunction,val.useCapture);
+    eventArray.forEach(function (val) {
+        val.useCapture = !!(val.useCapture);
+        val.DOMNode.addEventListener(val.eventType, val.eventFunction, val.useCapture);
         this._DOMEventsStorage.push(val);
-    },this)
+    }, this);
 };
+
 /**
  * Remove events
  * @param {Array.<Object>} eventArray - event array
@@ -63,23 +64,23 @@ DOMEvents.prototype.add = function(eventArray){
  * @param {Function} eventArray.eventFunction -   Function
  * @param {Boolean} [eventArray.useCapture=false] -   useCapture
  */
-DOMEvents.prototype.remove = function(eventArray){
-//TODO IMPLEMENT
+DOMEvents.prototype.remove = function (eventArray) {
+    // TODO IMPLEMENT
     // TODO не уверен что этот метод необходим. если надо часто убирать какието обработчики, то лучше поставить обработчки на родителя
     console.warn("TODO IMPLEMENT");
-
 };
+
 /**
  * Remove all dom events registered with this instance (added by method add)
  * @example
  * //look at add method as first part of this code
  * DOMEventsInstance.removeAll();
  */
-DOMEvents.prototype.removeAll = function(){
-    this._DOMEventsStorage.forEach(function(val){
-        val.DOMNode.removeEventListener(val.eventType,val.eventFunction,val.useCapture);
+DOMEvents.prototype.removeAll = function () {
+    this._DOMEventsStorage.forEach(function (val) {
+        val.DOMNode.removeEventListener(val.eventType, val.eventFunction, val.useCapture);
     });
-    this._DOMEventsStorage=[];
+    this._DOMEventsStorage = [];
 };
 
 module.exports = DOMEvents;

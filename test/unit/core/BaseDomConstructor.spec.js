@@ -1,6 +1,6 @@
 "use strict";
-var assert = chai.assert;
-var should = chai.should();
+// var assert = chai.assert;
+// var should = chai.should();
 var expect = chai.expect;
 
 if (!window.sf) {
@@ -23,20 +23,20 @@ window.sf.options.instances.testInstance = {
 };
 
 
-require("../../../src/index");
+require("../../../src/sf-wrapper");
 
 
 /**
  * Lets create test instance for testing
- * @param spiral
- * @param node
- * @param options
+ * @param {Object} spiral
+ * @param {HTMLElement} node
+ * @param {Object} options
  * @constructor
  */
 var TestInstance = function (spiral, node, options) {
     this.init(spiral, node, options);
 };
-debugger;
+
 TestInstance.prototype = Object.create(sf.core.BaseDOMConstructor.prototype);
 TestInstance.prototype.name = "testInstance";
 TestInstance.prototype.optionsToGrab = {
@@ -55,14 +55,12 @@ TestInstance.prototype.optionsToGrab = {
         domAttr: "someAttr",
         processor: function (node, val, key) {
             return val + "aaaa";
-
         }
     },
     test5: {
         value: "bb",
         processor: function (node, val, key) {
             return val + "aaaa";
-
         }
     },
     testSfOptions2: {
@@ -113,5 +111,4 @@ describe('BaseDomConstructor', function () {
             expect(instanceOptions).to.have.property('testSfOptions3').with.equal("test");
         });
     });
-
 });

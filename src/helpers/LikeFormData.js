@@ -49,7 +49,7 @@
 var LikeFormData = function (data, boundary) {
     this.data = {};
     if (data) {
-        if (Object.prototype.toString.call(data) !== "[object Object]") {//non object/ Alert developer
+        if (Object.prototype.toString.call(data) !== "[object Object]") { // non object/ Alert developer
             console.warn("LikeFormData can't accept non Object. Please reefer to documentation. Problem parameter is:", data);
         } else {
             this.data = data;
@@ -58,14 +58,14 @@ var LikeFormData = function (data, boundary) {
     this.boundary = (boundary) ? boundary : ("SpiralFormData-" + Math.random().toString().substr(2));
 
 
-    //if (!isOldIE) {
+    // if (!isOldIE) {
     //    this.boundary = "SpiralAjax-" + Math.random().toString().substr(2);
     //    //xhr.setRequestHeader("content-type", "multipart/form-data; charset=utf-8; boundary=" + this.boundary);
-    //} else {
+    // } else {
     //    this.boundary = "SpiralAjax-oldIE9876gsloiHGldowu";
-    //}
-
+    // }
 };
+
 /**
  * Append data to storage. Like standart FormData do.
  * @param {String} key
@@ -75,8 +75,8 @@ var LikeFormData = function (data, boundary) {
  * formData.append("key2","val2");
  */
 LikeFormData.prototype.append = function (key, val) {
-    //https://developer.mozilla.org/en-US/docs/Web/API/FormData
-    //TODO ***Appends a new value**** onto an existing key inside a FormData object, or adds the key if it does not already exist.
+    // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+    // TODO ***Appends a new value**** onto an existing key inside a FormData object, or adds the key if it does not already exist.
     this.data[key] = val;
 };
 
@@ -92,6 +92,7 @@ LikeFormData.prototype.append = function (key, val) {
  * // testValue
  * //--SpiralFormData-4935309085994959--
  * //"
+ * @return {string}
  */
 LikeFormData.prototype.toString = function () {
     var retString = "";
@@ -112,10 +113,9 @@ LikeFormData.prototype.toString = function () {
     if (typeof this.data !== "object") {
         this.data = {
             data: this.data
-        }
+        };
     }
     iterate(this.data, "");
-
 
     retString += "--" + this.boundary + "--\r\n";
     return retString;
@@ -123,22 +123,25 @@ LikeFormData.prototype.toString = function () {
 
 /**
  * The delete() method of the FormData interface deletes a key/value pair from a FormData object.
- * @param key
+ * @param {string} key
+ * @return {*}
  */
 LikeFormData.prototype.delete = function (key) {
     return delete(this.data[key]);
 };
 
-
 /**
  *The get() method of the FormData interface returns the first value associated with a given key from within a FormData object.
- * @param key
+ * @param {string} key
+ * @return {*}
  */
 LikeFormData.prototype.get = function (key) {
     return this.data[key];
 };
+
 /**
- *The getAll() method of the FormData interface returns the first value associated with a given key from within a FormData object.
+ * The getAll() method of the FormData interface returns the first value associated with a given key from within a FormData object.
+ * @return {*}
  */
 LikeFormData.prototype.getAll = function () {
     return this.data;
@@ -146,18 +149,21 @@ LikeFormData.prototype.getAll = function () {
 
 /**
  * The has() method of the FormData interface returns a boolean stating whether a FormData object contains a certain key/value pair.
- * @param key
+ * @param {string} key
+ * @return {*}
  */
-LikeFormData.prototype.has = function(key){
+LikeFormData.prototype.has = function (key) {
     return this.data.hasOwnProperty(key);
 };
 
 /**
- * The difference between set() and FormData.append is that if the specified header does already exist, set() will overwrite the existing value with the new one, whereas FormData.append will append the new value onto the end of the set of values.
- * @param key
- * @param val
+ * The difference between set() and FormData.append is that if the specified header does already exist, set() will
+ * overwrite the existing value with the new one, whereas FormData.append will append the new value onto the end of the
+ * set of values.
+ * @param {string} key
+ * @param {*} val
  */
-LikeFormData.prototype.set = function(key, val){
+LikeFormData.prototype.set = function (key, val) {
     this.data[key] = val;
 };
 
@@ -173,8 +179,6 @@ LikeFormData.prototype.set = function(key, val){
  */
 LikeFormData.prototype.getContentTypeHeader = function () {
     return "multipart/form-data; charset=utf-8; boundary=" + this.boundary;
-
 };
-
 
 module.exports = LikeFormData;

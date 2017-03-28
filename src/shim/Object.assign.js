@@ -12,6 +12,7 @@ if (typeof Object.assign != 'function') {
 
             var output = Object(target);
             for (var index = 1; index < arguments.length; index++) {
+                // eslint-disable-next-line
                 var source = arguments[index];
                 if (source !== undefined && source !== null) {
                     for (var nextKey in source) {

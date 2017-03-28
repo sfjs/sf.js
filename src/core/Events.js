@@ -30,18 +30,18 @@ var Events = function (allowedEvents) {
  */
 Events.prototype.on = function (events, callback) {
     var eventArr = events.replace(/\s{2,}/g, " ").split(" ");
-    eventArr.forEach(function(event){
-        if (this._allowedEvents  && this._allowedEvents.indexOf(event) === -1){// event not inside allowed events
-            console.warn("Events. Try to register event %s, but event is not allowed",event);
+    eventArr.forEach(function (event) {
+        if (this._allowedEvents && this._allowedEvents.indexOf(event) === -1) {// event not inside allowed events
+            console.warn("Events. Try to register event %s, but event is not allowed", event);
             return;
         }
         if (!this._storage.hasOwnProperty(events)) {
             this._storage[event] = [];
         }
         this._storage[event].push(callback);
-    },this)
-
+    }, this);
 };
+
 /**
  * Add action
  * @param {String} action
@@ -58,7 +58,7 @@ Events.prototype.registerAction = Events.prototype.on;
  */
 Events.prototype.off = function (event, callback) {
     alert("You try to remove action. This part is incomplete");
-    //TODO
+    // TODO
 };
 
 /**
@@ -71,8 +71,8 @@ Events.prototype.off = function (event, callback) {
  * events.trigger("myBestEvent",{bestKey:42}); //will show in log
  */
 Events.prototype.trigger = function (event, options) {
-    if (this._allowedEvents  && this._allowedEvents.indexOf(event) === -1){// event not inside allowed events
-        console.warn("Events. Try to trigger event %s, but event is not allowed",event);
+    if (this._allowedEvents && this._allowedEvents.indexOf(event) === -1) {// event not inside allowed events
+        console.warn("Events. Try to trigger event %s, but event is not allowed", event);
         return;
     }
     if (this._storage.hasOwnProperty(event)) {

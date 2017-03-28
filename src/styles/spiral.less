@@ -8,14 +8,13 @@
   box-sizing: border-box;
 }
 
-
 html {
   font-size: 100%;
 }
 
 body {
   font-family: sans-serif;
-  -webkit-font-smoothing: antialiased!important;
+  -webkit-font-smoothing: antialiased !important;
 }
 
 i, em {
@@ -252,7 +251,7 @@ table {
     .size(100%, 30px);
 
     border: 1px solid @spiral-grey;
-    border-radius: none;
+    border-radius: 0;
     background: none;
 
     &:focus {
@@ -301,9 +300,8 @@ table {
       left: 3px;
       top: 3px;
       content: "";
-      transition: all .2s ease-out 0s;
+      transition: all 0.2s ease-out 0s;
       opacity: 0;
-
     }
   }
 
@@ -313,11 +311,9 @@ table {
     z-index: -3;
 
     &:checked + span {
-
       &:before {
-        transition: all .2s ease-out 0s;
+        transition: all 0.2s ease-out 0s;
         opacity: 1;
-
       }
     }
   }
@@ -352,7 +348,7 @@ table {
     &:before {
       .size(11px, 11px);
 
-      transition: all .2s ease-out 0s;
+      transition: all 0.2s ease-out 0s;
       background: @spiral-blue;
       opacity: 0;
       content: "";
@@ -369,9 +365,8 @@ table {
     z-index: -3;
 
     &:checked + span {
-
       &:before {
-        transition: all .2s ease-out 0s;
+        transition: all 0.2s ease-out 0s;
         opacity: 1;
       }
     }
@@ -399,23 +394,25 @@ table {
   &:focus {
     outline: none;
   }
+
   &.btn-block {
     width: 100%;
   }
+
   &.btn-default {
-    transition: all .2s ease-out 0s;
+    transition: all 0.2s ease-out 0s;
     background: @spiral-blue;
-    margin-bottom: 5px; //this need to compensate shadow that goes outside locker. discuss with @Nataliya
+    margin-bottom: 5px; // this need to compensate shadow that goes outside locker. discuss with @Nataliya
 
     &:hover {
-      transition: all .2s ease-out 0s;
+      transition: all 0.2s ease-out 0s;
       background: @spiral-dark-blue;
     }
   }
 }
 
 .btn-icon, .btn-close {
-  //todo get rid of .btn-close (in alerts)
+  // todo get rid of .btn-close (in alerts)
   display: block;
   color: @spiral-black;
   background: transparent;
@@ -429,7 +426,6 @@ table {
     opacity: 1;
   }
 }
-
 
 form {
   position: relative;
@@ -452,10 +448,12 @@ form {
       border-color: @spiral-blue;
       outline: none;
     }
+
     &:disabled, &:read-only {
       background: @spiral-light-grey;
     }
   }
+
   textarea {
     width: 100%;
     .placeholder(@spiral-grey);
@@ -474,6 +472,7 @@ form {
 
 .item-label {
   .font-size(14);
+
   .line-height(16);
 
   color: @spiral-dark-grey;
@@ -484,9 +483,11 @@ form {
 
 .info {
   color: @spiral-blue;
+
   .item-label {
     color: @spiral-blue;
   }
+
   input, textarea {
     border-color: @spiral-blue;
   }
@@ -507,25 +508,22 @@ form {
     top: 0;
   }
 
-
   &.form-msg {
     border-radius: 2px;
     padding: 5px 10px;
 
-
     &.error {
       color: @spiral-red;
-      background: rgba(255,0,0,.1);
+      background: rgba(255, 0, 0, 0.1);
 
       .btn-close {
         color: @spiral-red;
       }
     }
 
-
     &.success {
       color: @spiral-green;
-      background: rgba(0,255,0,.1);
+      background: rgba(0, 255, 0, 0.1);
 
       .btn-close {
         color: @spiral-green;
@@ -534,7 +532,7 @@ form {
 
     &.warning {
       color: @spiral-yellow;
-      background: rgba(244,232,151,.1);
+      background: rgba(244, 232, 151, 0.1);
 
       .btn-close {
         color: @spiral-yellow;
@@ -543,18 +541,16 @@ form {
 
     &.info {
       color: @spiral-blue;
-      background: rgba(0,0,255,.1);
+      background: rgba(0, 0, 255, 0.1);
 
       .btn-close {
         color: @spiral-blue;
       }
     }
-
   }
 }
 
 .item-form {
-
   &.error {
     .item-label,
     .item-input,
@@ -585,7 +581,6 @@ form {
     }
   }
 
-
   &.info {
     .item-label,
     .item-input,
@@ -597,17 +592,14 @@ form {
   }
 
   .alert {
-
     &.form-msg {
-      border-radius: 0px;
-      padding: 5px 0px;
-
+      border-radius: 0;
+      padding: 5px 0;
 
       &.error {
         color: @spiral-red;
         background: transparent;
       }
-
 
       &.success {
         color: @spiral-green;
@@ -623,7 +615,6 @@ form {
         color: @spiral-blue;
         background: transparent;
       }
-
     }
   }
 }
@@ -646,14 +637,14 @@ form {
   cursor: pointer;
   border: 2px solid @spiral-white;
   border-radius: 2px;
-  box-shadow: 0 0 0 1px @spiral-grey
+  box-shadow: 0 0 0 1px @spiral-grey;
 }
 
 .switch-label {
   display: inline-block;
   margin: 0 5px;
   font-size: 14px;
-  color: #666666;
+  color: #666;
   position: relative;
   top: -8px;
 }
@@ -689,7 +680,7 @@ form {
   content: "OFF";
   padding-right: 10px;
   background-color: @spiral-light-grey;
-  color: #999999;
+  color: #999;
   text-align: right;
 }
 
@@ -709,7 +700,7 @@ form {
 }
 
 .switch-checkbox:checked + .switch-inner + .switch-switch {
-  right: 0px;
+  right: 0;
   background-color: #fff;
 }
 
@@ -718,7 +709,6 @@ form {
 
   margin: 0;
   padding: 0;
-
 
   li {
     display: block;
@@ -739,7 +729,7 @@ form {
 
     a {
       display: block;
-      min-width:30px;
+      min-width: 30px;
       height: 30px;
       line-height: 30px;
       text-align: center;
@@ -752,7 +742,7 @@ form {
       }
     }
 
-    &.active a{
+    &.active a {
       pointer-events: none;
       background: #efefef;
     }

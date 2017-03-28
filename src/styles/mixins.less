@@ -7,6 +7,7 @@
 // For clearing floats like a boss h5bp.com/q
 .clearfix, .cf {
   *zoom: 1;
+
   &:before,
   &:after {
     display: table;
@@ -15,6 +16,7 @@
     // http://nicolasgallagher.com/micro-clearfix-hack/#comment-36952
     line-height: 0;
   }
+
   &:after {
     clear: both;
   }
@@ -45,9 +47,11 @@
   &:-moz-placeholder {
     color: @color;
   }
+
   &:-ms-input-placeholder {
     color: @color;
   }
+
   &::-webkit-input-placeholder {
     color: @color;
   }
@@ -262,6 +266,7 @@
     background-repeat: repeat-x;
     filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=1)", argb(@startColor), argb(@endColor))); // IE9 and down
   }
+
   .vertical(@startColor: #555, @endColor: #333) {
     background-color: mix(@startColor, @endColor, 60%);
     background-image: -moz-linear-gradient(top, @startColor, @endColor); // FF 3.6+
@@ -272,6 +277,7 @@
     background-repeat: repeat-x;
     filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)", argb(@startColor), argb(@endColor))); // IE9 and down
   }
+
   .directional(@startColor: #555, @endColor: #333, @deg: 45deg) {
     background-color: @endColor;
     background-repeat: repeat-x;
@@ -280,6 +286,7 @@
     background-image: -o-linear-gradient(@deg, @startColor, @endColor); // Opera 11.10
     background-image: linear-gradient(@deg, @startColor, @endColor); // Standard, IE10
   }
+
   .horizontal-three-colors(@startColor: #00b3ee, @midColor: #7a43b6, @colorStop: 50%, @endColor: #c3325f) {
     background-color: mix(@midColor, @endColor, 80%);
     background-image: -webkit-gradient(left, linear, 0 0, 0 100%, from(@startColor), color-stop(@colorStop, @midColor), to(@endColor));
@@ -301,6 +308,7 @@
     background-repeat: no-repeat;
     filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)", argb(@startColor), argb(@endColor))); // IE9 and down, gets no color-stop at all for proper fallback
   }
+
   .radial(@innerColor: #555, @outerColor: #333) {
     background-color: @outerColor;
     background-image: -webkit-gradient(radial, center center, 0, center center, 460, from(@innerColor), to(@outerColor));
@@ -309,13 +317,14 @@
     background-image: -o-radial-gradient(circle, @innerColor, @outerColor);
     background-repeat: no-repeat;
   }
+
   .striped(@color: #555, @angle: 45deg) {
     background-color: @color;
-    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, rgba(255, 255, 255, .15)), color-stop(.25, transparent), color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .15)), color-stop(.75, rgba(255, 255, 255, .15)), color-stop(.75, transparent), to(transparent));
-    background-image: -webkit-linear-gradient(@angle, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-    background-image: -moz-linear-gradient(@angle, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-    background-image: -o-linear-gradient(@angle, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-    background-image: linear-gradient(@angle, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
+    background-image: -webkit-linear-gradient(@angle, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -moz-linear-gradient(@angle, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(@angle, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(@angle, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   }
 }
 
@@ -324,6 +333,7 @@
 .font-size(@sizeValue) {
   @remValue: (@sizeValue/16);
   @pxValue: (@sizeValue);
+
   font-size: ~"@{pxValue}px";
   font-size: ~"@{remValue}rem";
 }
@@ -333,6 +343,7 @@
 .line-height(@heightValue) {
   @remValue: (@heightValue/16);
   @pxValue: (@heightValue);
+
   line-height: ~"@{pxValue}px";
   line-height: ~"@{remValue}rem";
 }
@@ -351,13 +362,15 @@
 
 .triangle(@direction, @width, @height, @color) when (@direction = up) {
   .triangle-base();
-  border-left: (@width / 2)solid transparent;
-  border-right: (@width / 2)solid transparent;
+
+  border-left: (@width / 2) solid transparent;
+  border-right: (@width / 2) solid transparent;
   border-bottom: @height solid @color;
 }
 
 .triangle(@direction, @width, @height, @color) when (@direction = down) {
   .triangle-base();
+
   border-left: (@width / 2) solid transparent;
   border-right: (@width / 2) solid transparent;
   border-top: @height solid @color;
@@ -365,6 +378,7 @@
 
 .triangle(@direction, @width, @height, @color) when (@direction = left) {
   .triangle-base();
+
   border-top: (@width / 2) solid transparent;
   border-bottom: (@width / 2) solid transparent;
   border-right: @height solid @color;
@@ -372,6 +386,7 @@
 
 .triangle(@direction, @width, @height, @color) when (@direction = right) {
   .triangle-base();
+
   border-top: (@width / 2) solid transparent;
   border-bottom: (@width / 2) solid transparent;
   border-left: @height solid @color;

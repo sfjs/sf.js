@@ -8,12 +8,14 @@
   -moz-transition-duration: 0.7s;
   -o-transition-duration: 0.7s;
   transition-duration: 0.7s;
-  -webkit-border-radius: 0 0 5px 0;
-  -moz-border-radius: 0 0 5px 0;
-  border-radius: 0 0 5px 0;
+  -webkit-border-radius: 0 0 5px;
+  -moz-border-radius: 0 0 5px;
+  border-radius: 0 0 5px;
+
   &.show {
     right: 10px;
   }
+
   .flash {
     color: #fff;
     position: relative;
@@ -26,14 +28,17 @@
     -ms-transform: rotateX(0deg);
     transform: rotateX(0deg);
     opacity: 1;
+
     &.info {
-      background: #86C6E4;
+      background: #86c6e4;
     }
+
     &.debug {
-      background: #83C34A;
+      background: #83c34a;
     }
+
     &.danger {
-      background: #F44336;
+      background: #f44336;
     }
   }
 }

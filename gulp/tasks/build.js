@@ -14,7 +14,7 @@ var gutil = require('gulp-util');
 
 var browserify = function(){
     return Browserify({
-        entries: './src/index.js',
+        entries: './src/sf-wrapper.js',
         debug: true
     });
 };
