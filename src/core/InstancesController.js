@@ -92,7 +92,7 @@ InstancesController.prototype.addInstance = function (instanceName, node, option
     var InstanceConstructor = this._storage.instancesConstructors.jsConstructors[instanceName];
     var isAlreadyAdded = this.getInstance(instanceName, node);
 
-    if (!instanceConstructor || isAlreadyAdded) {// if not found this type  or already added - return
+    if (!InstanceConstructor || isAlreadyAdded) {// if not found this type  or already added - return
         return false;
     }
 
