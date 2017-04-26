@@ -28,7 +28,7 @@ if (window && !window.hasOwnProperty("sf")) {// bind only if  window.sf is empty
     window.sf = sfWrapper;
 }
 
-sfWrapper.instancesController = new sfWrapper.core.InstancesController(sf);
+sfWrapper.instancesController = new sfWrapper.core.InstancesController(sfWrapper);
 sfWrapper.domMutation = new sfWrapper.core.DomMutations(sfWrapper.instancesController);
 
 // Events system
